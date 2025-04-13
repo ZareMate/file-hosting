@@ -63,6 +63,7 @@ model User {
     accounts      Account[]
     sessions      Session[]
     posts         Post[]
+    files         File[]    // Relation to the File model
 }
 
 model VerificationToken {
@@ -71,4 +72,16 @@ model VerificationToken {
     expires    DateTime
 
     @@unique([identifier, token])
+}
+
+model File {
+    id         String   @id @default(cuid())
+    url        String
+    name       String
+    size       Int      // Size in bytes
+    extension  String
+    uploadDate DateTime @default(now())
+
+    uploadedBy User?    @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
+    uploadedById String?
 }
