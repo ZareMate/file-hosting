@@ -61,14 +61,11 @@ export async function POST(req: Request) {
         try {
           const filePath = path.join(uploadDir, fileName);
           await fs.writeFile(filePath, fileBuffer);
-          const pageurl = new URL(req.url);
-          //get root path of the url
-          const pagePath = `${pageurl.protocol}//${pageurl.host}`;
 
           // Save file metadata to the database
           const newFile = await db.file.create({
             data: {
-              url: `${pagePath}/share?id=${fileName}`,
+              url: `/share?id=${fileName}`,
               name: fileName,
               size: fileBuffer.length,
               extension: path.extname(fileName),
