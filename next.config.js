@@ -8,6 +8,7 @@ const nextConfig = {
   reactStrictMode: true,
   eslint: {
     ignoreDuringBuilds: true,
+  output: "standalone",
   },
   images: {
     remotePatterns: [
@@ -20,5 +21,6 @@ const nextConfig = {
     ],
   },
 };
+
 
 export default nextConfig;
