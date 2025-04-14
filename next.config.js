@@ -10,7 +10,7 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   output: "standalone",
   },
-  "allowedDevOrigins": [
+  allowedDevOrigins: [
     "http://localhost:3000",
     "http://10.0.0.1:3000",
     "http://files.suchodupin.com:3000",
