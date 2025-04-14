@@ -68,7 +68,7 @@ export async function POST(req: Request) {
           // Save file metadata to the database
           const newFile = await db.file.create({
             data: {
-              url: `${pagePath}/share?file=${fileName}`,
+              url: `${pagePath}/share?id=${fileName}`,
               name: fileName,
               size: fileBuffer.length,
               extension: path.extname(fileName),
