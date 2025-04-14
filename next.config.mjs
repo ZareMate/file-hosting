@@ -4,12 +4,15 @@
  */
 import "./src/env.js";
 
+
+
+/** @type {import("next").NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   eslint: {
     ignoreDuringBuilds: true,
-  output: "standalone",
   },
+  output: "standalone",
   allowedDevOrigins: [
     "http://localhost:3000",
     "http://10.0.0.1:3000",
@@ -27,6 +30,8 @@ const nextConfig = {
     ],
   },
 };
+
+
 
 
 export default nextConfig;
