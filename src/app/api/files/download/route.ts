@@ -4,7 +4,7 @@ import { promises as fs } from "fs";
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
-  const fileId = url.searchParams.get("fileName");
+  const fileId = url.searchParams.get("fileId");
 
   if (!fileId) {
     return NextResponse.json({ error: "File id is required" }, { status: 400 });

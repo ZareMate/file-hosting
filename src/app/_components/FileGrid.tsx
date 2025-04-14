@@ -39,7 +39,7 @@ export default function FileGrid({ session }: FileGridProps) {
 
   const handleDownload = async (fileName: string) => {
     try {
-      const response = await fetch(`/api/files/download?fileName=${encodeURIComponent(fileName)}`);
+      const response = await fetch(`/api/files/download?fileId=${encodeURIComponent(fileName)}`);
       if (!response.ok) {
         throw new Error("Failed to download file");
       }
