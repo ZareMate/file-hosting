@@ -51,7 +51,7 @@ function UploadsPage() {
 
   const handleDownload = async () => {
     try {
-      const response = await fetch(`/api/files/download?fileId=${encodeURIComponent(fileId ?? "")}`);
+      const response = await fetch(`/api/files/download?fileId=${encodeURIComponent(fileDetails?.name ?? "")}`); // Use optional chaining
       if (!response.ok) {
         throw new Error("Failed to download file");
       }

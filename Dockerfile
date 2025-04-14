@@ -1,5 +1,6 @@
 ##### DEPENDENCIES
 
+
 FROM --platform=linux/amd64 node:20-alpine AS deps
 RUN apk add --no-cache libc6-compat openssl
 WORKDIR /app
@@ -27,6 +28,8 @@ ARG NEXT_PUBLIC_CLIENTVAR
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+ARG NEXT_PUBLIC_PAGE_URL
+ENV NEXT_PUBLIC_PAGE_URL=$NEXT_PUBLIC_PAGE_URL
 
 # ENV NEXT_TELEMETRY_DISABLED 1
 
