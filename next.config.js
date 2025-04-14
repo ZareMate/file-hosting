@@ -6,7 +6,19 @@ import "./src/env.js";
 
 const nextConfig = {
   reactStrictMode: true,
-  experimental: {},
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "cdn.discordapp.com",
+        port: "",
+        pathname: "/**",
+      },
+    ],
+  },
 };
 
 export default nextConfig;

@@ -5,7 +5,7 @@ import { db } from "~/server/db";
 import { auth } from "~/server/auth";
 import Busboy from "busboy";
 import { Readable } from "stream";
-import { notifyClients } from "../files/stream/route";
+import { notifyClients } from "~/utils/notifyClients";
 
 export const config = {
   api: {
@@ -46,7 +46,7 @@ export async function POST(req: Request) {
         const baseName = path.basename(fileName, fileExtension);
         fileName = `${baseName}-${Date.now()}${fileExtension}`;
       }
-
+  
       file.on("data", (chunk) => {
         chunks.push(chunk);
       });

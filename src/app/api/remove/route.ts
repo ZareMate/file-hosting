@@ -3,7 +3,7 @@ import { db } from "~/server/db";
 import { auth } from "~/server/auth";
 import path from "path";
 import { promises as fs } from "fs";
-import { notifyClients } from "../files/stream/route";
+import { notifyClients } from "~/utils/notifyClients";
 
 export async function DELETE(req: Request) {
   const session = await auth();
@@ -13,15 +13,13 @@ export async function DELETE(req: Request) {
   }
 
   try {
-    const body = await req.json().catch(() => null); // Handle empty or invalid JSON
-    if (!body || !body.id) {
+    const body = (await req.json()) as { id: string } | null;
+    if (!body?.id) {
       return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
     }
 
-    const resourceId = body.id;
-
     const resource = await db.file.findUnique({
-      where: { id: resourceId },
+      where: { id: body.id },
     });
 
     if (!resource || resource.uploadedById !== session.user.id) {
@@ -34,11 +32,10 @@ export async function DELETE(req: Request) {
     });
 
     await db.file.delete({
-      where: { id: resourceId },
+      where: { id: body.id },
     });
 
-    // Notify clients about the deleted file
-    notifyClients({ type: "file-removed", fileId: resourceId });
+    notifyClients({ type: "file-removed", fileId: body.id });
 
     return NextResponse.json({ message: "Resource deleted successfully" });
   } catch (error) {

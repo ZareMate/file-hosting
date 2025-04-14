@@ -3,7 +3,7 @@ import { auth } from "~/server/auth";
 import { HydrateClient } from "~/trpc/server";
 import FileGrid from "~/app/_components/FileGrid";
 import UploadForm from "~/app/_components/UploadForm";
-import toast, { Toaster } from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
 
 export default async function Home() {
   const session = await auth();

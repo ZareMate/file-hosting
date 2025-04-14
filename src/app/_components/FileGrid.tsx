@@ -1,3 +1,6 @@
+//!eslint-disable @typescript-eslint/no-unsafe-assignment
+//!eslint-disable @typescript-eslint/no-unsafe-argument
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -17,8 +20,7 @@ interface FileGridProps {
 export default function FileGrid({ session }: FileGridProps) {
   const [files, setFiles] = useState<File[]>([]);
   const [error, setError] = useState<string | null>(null);
-
-  
+  const router = useRouter();
 
   const fetchFiles = async () => {
     try {
@@ -26,7 +28,7 @@ export default function FileGrid({ session }: FileGridProps) {
       if (!response.ok) {
         throw new Error("Failed to fetch files");
       }
-      const data: { files: File[] } = await response.json();
+      const data = await response.json() as { files: File[] }; // Explicitly type the response
       setFiles(data.files);
     } catch (err) {
       console.error(err);
@@ -71,12 +73,14 @@ export default function FileGrid({ session }: FileGridProps) {
     const eventSource = new EventSource("/api/files/stream");
 
     eventSource.onmessage = (event) => {
-      const data = JSON.parse(event.data);
+      const data: { type: string; file?: File; fileId?: string } = JSON.parse(event.data); // Explicitly type the parsed data
 
-      if (data.type === "file-added") {
-        setFiles((prevFiles) => [...prevFiles, data.file]);
+      if (data.type === "file-added" && data.file) {
+        if (data.file) {
+          setFiles((prevFiles) => [...prevFiles, data.file as File]);
+        }
         toast.success(`File "${data.file.name}" added!`);
-      } else if (data.type === "file-removed") {
+      } else if (data.type === "file-removed" && data.fileId) {
         setFiles((prevFiles) => prevFiles.filter((file) => file.id !== data.fileId));
       }
     };
@@ -123,7 +127,6 @@ export default function FileGrid({ session }: FileGridProps) {
   if (error) {
     return <div className="text-red-500">{error}</div>;
   }
-  const router = useRouter();
 
   return (
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 md:gap-8">

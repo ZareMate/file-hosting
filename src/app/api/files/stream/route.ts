@@ -1,6 +1,4 @@
-import { NextResponse } from "next/server";
-
-const clients: Set<any> = new Set();
+import { clients } from "~/utils/notifyClients";
 
 export async function GET() {
   const stream = new ReadableStream({
@@ -20,16 +18,9 @@ export async function GET() {
 
       clients.add(client);
 
-      // Remove the client when the stream is closed
-      const abortListener = () => {
-        clients.delete(client);
-        controller.close(); // Ensure the stream is closed when the client disconnects
-      };
-      signal.addEventListener("abort", abortListener);
-
-      // Cleanup the abort listener when the stream is closed
       signal.addEventListener("abort", () => {
-        signal.removeEventListener("abort", abortListener);
+        clients.delete(client);
+        controller.close();
       });
     },
   });
@@ -40,17 +31,5 @@ export async function GET() {
       "Cache-Control": "no-cache",
       Connection: "keep-alive",
     },
-  });
-}
-
-// Notify all connected clients about a file change
-export function notifyClients(data: any) {
-  const message = JSON.stringify(data);
-  clients.forEach((client) => {
-    try {
-      client.send(message);
-    } catch (error) {
-      console.error("Failed to send message to a client:", error);
-    }
   });
 }

@@ -40,7 +40,7 @@ export default function UploadForm() {
 
       xhr.onload = () => {
         if (xhr.status === 200) {
-          const response = JSON.parse(xhr.responseText);
+          const response: { url: string } = JSON.parse(xhr.responseText); // Explicitly type the response
           setUploadedFileUrl(response.url); // Assume the API returns the uploaded file URL
           toast.success("File uploaded successfully!");
 

@@ -2,12 +2,10 @@ import { NextResponse } from "next/server";
 import { db } from "~/server/db";
 import { auth } from "~/server/auth";
 
-
-
 export async function GET(req: Request) {
   const session = await auth();
   const url = new URL(req.url);
-  const fileName = url.searchParams.get("file");
+  const fileName = url.searchParams.get("id");
 
   if (!fileName) {
     return NextResponse.json({ error: "File name is required" }, { status: 400 });
@@ -26,12 +24,12 @@ export async function GET(req: Request) {
     return NextResponse.json({
       name: file.name,
       size: file.size,
-      owner: file.uploadedBy?.name || "Unknown",
+      owner: file.uploadedBy?.name ?? "Unknown", // Use nullish coalescing
       uploadDate: file.uploadDate,
       id: file.id,
-      isOwner: session?.user?.id === file.uploadedById, // Check if the current user is the owner
-      type: file.extension, // Add file type
-      url: file.url, // Add file URL
+      isOwner: session?.user?.id === file.uploadedById,
+      type: file.extension,
+      url: file.url,
     });
   } catch (error) {
     console.error("Error fetching file details:", error);
