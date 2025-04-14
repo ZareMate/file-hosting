@@ -7,7 +7,6 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { env } from "~/env.js";
-
 interface File {
   id: string;
   name: string;
@@ -22,6 +21,7 @@ export default function FileGrid({ session }: FileGridProps) {
   const [files, setFiles] = useState<File[]>([]);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const pageUrl = env.NEXT_PUBLIC_PAGE_URL; // Assuming PAGE_URL is defined in your environment variables
 
   const fetchFiles = async () => {
     try {
@@ -98,7 +98,7 @@ export default function FileGrid({ session }: FileGridProps) {
 
   const handleCopyUrl = (url: string) => {
     navigator.clipboard
-      .writeText(env.PAGE_URL + url)
+      .writeText(pageUrl + url)
       .then(() => toast.success("File URL copied to clipboard!"))
       .catch(() => toast.error("Failed to copy URL."));
   };
@@ -137,7 +137,7 @@ export default function FileGrid({ session }: FileGridProps) {
             className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 hover:bg-white/20"
           >
             
-            <button onClick={() => router.push(env.PAGE_URL + file.url)}>
+            <button onClick={() => router.push(env.NEXT_PUBLIC_PAGE_URL + file.url)}>
               <h3 className="text-2xl font-bold">{file.name}</h3>
             </button>
             <div className="flex gap-2">
