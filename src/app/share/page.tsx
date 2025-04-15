@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
 import Head from "next/head";
+import { number } from "zod";
 
 // import { SharePage } from "~/components/SharePage";
 
@@ -50,6 +51,47 @@ function UploadsPage() {
 
     void fetchFileDetails(); // Use `void` to mark the promise as intentionally ignored
   }, [fileId]);
+
+  // set page og meta tags
+  useEffect(() => {
+    if (fileDetails) {
+      const ogTitle = `File Details: ${fileDetails.name}`;
+      // proper size conversion
+      const sizeInKB = fileDetails.size / 1024;
+      const sizeInMB = sizeInKB / 1024;
+      const sizeInGB = sizeInMB / 1024;
+      let sizeDescription: string = `${sizeInKB.toFixed(2)} KB`;
+      if (sizeInMB >= 1) {
+        sizeDescription = `${sizeInMB.toFixed(2)} MB`;
+      } else if (sizeInGB >= 1) {
+        sizeDescription = `${sizeInGB.toFixed(2)} GB`;
+      }
+      const ogDescription = `File Name: ${fileDetails.name}, Size: ${sizeDescription}, Owner: ${fileDetails.owner}, Upload Date: ${new Date(fileDetails.uploadDate).toLocaleString()}`;
+
+      document.title = ogTitle;
+      // if meta og tags are not present, create them
+      if (!document.querySelector('meta[name="description"]')) {
+        const metaDescription = document.createElement("meta");
+        metaDescription.name = "description";
+        document.head.appendChild(metaDescription);
+      }
+      if (!document.querySelector('meta[property="og:title"]')) {
+        const metaOgTitle = document.createElement("meta");
+        metaOgTitle.setAttribute("property", "og:title");
+        document.head.appendChild(metaOgTitle);
+      }
+      if (!document.querySelector('meta[property="og:description"]')) {
+        const metaOgDescription = document.createElement("meta");
+        metaOgDescription.setAttribute("property", "og:description");
+        document.head.appendChild(metaOgDescription);
+      }
+      document.querySelector('meta[name="description"]')?.setAttribute("content", ogDescription);
+      document.querySelector('meta[property="og:title"]')?.setAttribute("content", ogTitle);
+      document.querySelector('meta[property="og:description"]')?.setAttribute("content", ogDescription);
+      
+
+    }
+  }, [fileDetails]);
 
   const handleDownload = async () => {
     try {
@@ -138,15 +180,6 @@ function UploadsPage() {
 
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
-      <head>
-        <meta property="og:title" content={fileDetails.name} />
-        <meta property="og:description" content={`File details for ${fileDetails.name}`} />
-        <meta property="og:image" content={fileDetails.url} />
-        <meta property="og:url" content={`${window.location.origin}/share?id=${fileDetails.id}`} />
-        <meta property="og:type" content="website" />
-        <meta property="og:site_name" content="File Hosting - Suchodupin" />
-        <meta property="og:locale" content="en_US" />
-      </head>
       <Toaster position="top-right" reverseOrder={false} />
       <div className="absolute top-4 left-4">
         <button
