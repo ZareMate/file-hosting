@@ -1,7 +1,7 @@
 // pages/share/[id].tsx
 
 import Head from "next/head";
-import { GetServerSideProps } from "next";
+import type { GetServerSideProps } from "next";
 
 interface FileDetails {
   name: string;
