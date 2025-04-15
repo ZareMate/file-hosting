@@ -6,6 +6,7 @@ import { auth } from "~/server/auth";
 import Busboy from "busboy";
 import { Readable } from "stream";
 import { notifyClients } from "~/utils/notifyClients";
+import crypto from "crypto";
 
 export const config = {
   api: {
@@ -15,6 +16,8 @@ export const config = {
 
 export async function POST(req: Request) {
   const session = await auth();
+  // generate id for the file
+  const guid = crypto.randomUUID();
 
   if (!session?.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -59,13 +62,14 @@ export async function POST(req: Request) {
     busboy.on("finish", () => {
       void (async () => {
         try {
-          const filePath = path.join(uploadDir, fileName);
+          const filePath = path.join(uploadDir, guid);
           await fs.writeFile(filePath, fileBuffer);
 
           // Save file metadata to the database
           const newFile = await db.file.create({
             data: {
-              url: `/share?id=${fileName}`,
+              id: guid,
+              url: `/share?id=${guid}`,
               name: fileName,
               size: fileBuffer.length,
               extension: path.extname(fileName),

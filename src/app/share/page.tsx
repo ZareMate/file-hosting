@@ -55,31 +55,31 @@ function UploadsPage() {
         toast.error("File details not available.");
         return;
       }
-      const response = await fetch(`/api/files/download?fileId=${encodeURIComponent(fileDetails?.name)}`); // Use optional chaining
-      if (!response.ok) {
-        throw new Error("Failed to download file");
-      }
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = fileId ?? "downloaded-file"; // Use nullish coalescing
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
-
-      toast.success("File downloaded successfully!");
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to download file.");
-    }
-  };
+          const response = await fetch(`/api/files/download?fileId=${encodeURIComponent(fileDetails.id)}&fileName=${encodeURIComponent(fileDetails.name)}`);
+          if (!response.ok) {
+            throw new Error("Failed to download file");
+          }
+          // Download the file with the correct filename
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = fileDetails.name;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          window.URL.revokeObjectURL(url);
+    
+          toast.success(`File "${fileDetails.name}" downloaded successfully!`);
+        } catch (err) {
+          console.error(err);
+          toast.error("Failed to download file.");
+        }
+      };
 
   const handleShare = () => {
     if (fileDetails) {
-      const shareableLink = `${window.location.origin}/share?id=${fileDetails.name}`;
+      const shareableLink = `${window.location.origin}/share?id=${fileDetails.id}`;
       navigator.clipboard
         .writeText(shareableLink)
         .then(() => toast.success("Shareable link copied to clipboard!"))
@@ -136,6 +136,13 @@ function UploadsPage() {
 
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
+        <meta property="og:title" content={fileDetails.name} />
+        <meta property="og:description" content={`File details for ${fileDetails.name}`} />
+        <meta property="og:image" content={fileDetails.url} />
+        <meta property="og:url" content={`${window.location.origin}/share?id=${fileDetails.id}`} />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="File Hosting - Suchodupin" />
+        <meta property="og:locale" content="en_US" />
       <Toaster position="top-right" reverseOrder={false} />
       <div className="absolute top-4 left-4">
         <button

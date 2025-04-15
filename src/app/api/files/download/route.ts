@@ -5,9 +5,13 @@ import { promises as fs } from "fs";
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const fileId = url.searchParams.get("fileId");
+  const fileName = url.searchParams.get("fileName");
 
   if (!fileId) {
     return NextResponse.json({ error: "File id is required" }, { status: 400 });
+  }
+  if (!fileName){
+    return NextResponse.json({ error: "File name is required" }, { status: 400 });
   }
 
   try {
@@ -17,7 +21,7 @@ export async function GET(req: Request) {
     return new Response(fileBuffer, {
       headers: {
         "Content-Type": "application/octet-stream",
-        "Content-Disposition": `attachment; filename="${fileId}"`,
+        "Content-Disposition": `attachment; filename="${fileName}"`,
       },
     });
   } catch (error) {

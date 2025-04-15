@@ -5,15 +5,15 @@ import { auth } from "~/server/auth";
 export async function GET(req: Request) {
   const session = await auth();
   const url = new URL(req.url);
-  const fileName = url.searchParams.get("id");
+  const fileId = url.searchParams.get("id");
 
-  if (!fileName) {
+  if (!fileId) {
     return NextResponse.json({ error: "File name is required" }, { status: 400 });
   }
 
   try {
     const file = await db.file.findFirst({
-      where: { name: fileName },
+      where: { id: fileId },
       include: { uploadedBy: true },
     });
 

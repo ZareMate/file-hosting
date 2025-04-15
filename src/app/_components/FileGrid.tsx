@@ -37,13 +37,13 @@ export default function FileGrid({ session }: FileGridProps) {
     }
   };
 
-  const handleDownload = async (fileName: string) => {
+  const handleDownload = async (fileId: string, fileName: string) => {
     try {
-      const response = await fetch(`/api/files/download?fileId=${encodeURIComponent(fileName)}`);
+      const response = await fetch(`/api/files/download?fileId=${encodeURIComponent(fileId)}&fileName=${encodeURIComponent(fileName)}`);
       if (!response.ok) {
         throw new Error("Failed to download file");
       }
-
+      // Download the file with the correct filename
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -143,7 +143,7 @@ export default function FileGrid({ session }: FileGridProps) {
             <div className="flex gap-2">
               {/* Download Button */}
               <button
-                onClick={() => handleDownload(file.name)}
+                onClick={() => handleDownload(file.id,file.name)}
                 className="flex items-center justify-center rounded-full bg-blue-500 p-2 hover:bg-blue-600"
               >
                 <svg

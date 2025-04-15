@@ -26,7 +26,7 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ error: "Resource not found or unauthorized" }, { status: 404 });
     }
 
-    const filePath = path.join(process.cwd(), "uploads", path.basename(resource.name));
+    const filePath = path.join(process.cwd(), "uploads", path.basename(body.id));
     await fs.unlink(filePath).catch((err) => {
       console.error("Error deleting file from filesystem:", err);
     });
