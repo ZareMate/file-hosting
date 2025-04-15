@@ -4,6 +4,8 @@ import { Suspense } from "react";
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
+import Head from "next/head";
+
 // import { SharePage } from "~/components/SharePage";
 
 interface FileDetails {
@@ -136,6 +138,15 @@ function UploadsPage() {
 
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
+      <head>
+        <meta property="og:title" content={fileDetails.name} />
+        <meta property="og:description" content={`File details for ${fileDetails.name}`} />
+        <meta property="og:image" content={fileDetails.url} />
+        <meta property="og:url" content={`${window.location.origin}/share?id=${fileDetails.id}`} />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="File Hosting - Suchodupin" />
+        <meta property="og:locale" content="en_US" />
+      </head>
       <Toaster position="top-right" reverseOrder={false} />
       <div className="absolute top-4 left-4">
         <button
