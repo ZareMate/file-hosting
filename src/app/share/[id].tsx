@@ -39,7 +39,7 @@ export default function SharePage({ fileDetails }: { fileDetails: FileDetails })
         <meta property="og:title" content={fileDetails.name} />
         <meta property="og:description" content={`File shared by ${fileDetails.owner}`} />
         <meta property="og:image" content={fileDetails.url} />
-        <meta property="og:url" content={`${process.env.NEXT_PUBLIC_BASE_URL}/share?id=${fileDetails.id}`} />
+        <meta property="og:url" content={`${process.env.NEXT_PUBLIC_PAGE_URL}/share?id=${fileDetails.id}`} />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="T3 File Share" />
       </Head>
