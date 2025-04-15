@@ -68,7 +68,7 @@ function UploadsPage() {
       }
       const ogDescription = `File Name: ${fileDetails.name}, Size: ${sizeDescription}, Owner: ${fileDetails.owner}, Upload Date: ${new Date(fileDetails.uploadDate).toLocaleString()}`;
 
-      document.title = ogTitle;
+      // document.title = ogTitle;
       // if meta og tags are not present, create them
       if (!document.querySelector('meta[name="description"]')) {
         const metaDescription = document.createElement("meta");
