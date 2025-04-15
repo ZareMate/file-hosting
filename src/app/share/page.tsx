@@ -134,22 +134,6 @@ function UploadsPage() {
     );
   }
 
-  //set page title and description
-  const pageTitle = `File Details - ${fileDetails.name}`;
-  const pageDescription = `Details of the file: ${fileDetails.name}`;
-  useEffect(() => {
-    document.title = pageTitle;
-    const metaDescription = document.querySelector('meta[name="description"]');
-    if (metaDescription) {
-      metaDescription.setAttribute("content", pageDescription);
-    }
-    const metaTitle = document.querySelector('meta[name="title"]');
-    if (metaTitle) {
-      metaTitle.setAttribute("content", pageTitle);
-    }
-
-  }, [pageTitle]);
-
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
       <Toaster position="top-right" reverseOrder={false} />
