@@ -134,15 +134,24 @@ function UploadsPage() {
     );
   }
 
+  //set page title and description
+  const pageTitle = `File Details - ${fileDetails.name}`;
+  const pageDescription = `Details of the file: ${fileDetails.name}`;
+  useEffect(() => {
+    document.title = pageTitle;
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute("content", pageDescription);
+    }
+    const metaTitle = document.querySelector('meta[name="title"]');
+    if (metaTitle) {
+      metaTitle.setAttribute("content", pageTitle);
+    }
+
+  }, [pageTitle]);
+
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
-        <meta property="og:title" content={fileDetails.name} />
-        <meta property="og:description" content={`File details for ${fileDetails.name}`} />
-        <meta property="og:image" content={fileDetails.url} />
-        <meta property="og:url" content={`${window.location.origin}/share?id=${fileDetails.id}`} />
-        <meta property="og:type" content="website" />
-        <meta property="og:site_name" content="File Hosting - Suchodupin" />
-        <meta property="og:locale" content="en_US" />
       <Toaster position="top-right" reverseOrder={false} />
       <div className="absolute top-4 left-4">
         <button
