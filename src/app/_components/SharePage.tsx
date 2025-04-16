@@ -63,6 +63,17 @@ export function SharePage({ fileId, fileType }: SharePageProps) {
       </video>
     );
   }
+  if (fileType.startsWith("audio")) {
+    return (
+      <audio
+        controls
+        className="max-w-full max-h-96 rounded-lg shadow-md"
+        src={mediaSrc}
+      >
+        Your browser does not support the audio tag.
+      </audio>
+    );
+  }
 
   return <img src={mediaSrc} alt="Media preview" className="max-w-full max-h-96 rounded-lg shadow-md" />;
 }
