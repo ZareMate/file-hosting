@@ -14,7 +14,7 @@ export async function GET(req: Request) {
   try {
     // Fetch file metadata from the database
     const file = await db.file.findFirst({
-      where: { name: fileId },
+      where: { id: fileId },
     });
 
     if (!file) {
@@ -22,15 +22,35 @@ export async function GET(req: Request) {
     }
 
     // Construct the file path
-    const filePath = path.join(process.cwd(), "uploads", file.name);
+    const filePath = path.join(process.cwd(), "uploads", file.id);
 
     // Read the file from the filesystem
     const fileBuffer = await fs.readFile(filePath);
 
+    const mimeType = file.extension === ".mp4"
+      ? "video/mp4"
+      : file.extension === ".webm"
+      ? "video/webm"
+      : file.extension === ".ogg"
+      ? "video/ogg"
+      : file.extension === ".jpg" || file.extension === ".jpeg"
+      ? "image/jpeg"
+      : file.extension === ".png"
+      ? "image/png"
+      : file.extension === ".gif"
+      ? "image/gif"
+      : file.extension === ".svg"
+      ? "image/svg+xml"
+      : file.extension === ".mp3"
+      ? "audio/mpeg"
+      : file.extension === ".wav"
+      ? "audio/wav"
+      : "application/octet-stream";
+
     // Return the file as a binary response
     return new Response(fileBuffer, {
       headers: {
-        "Content-Type": file.extension.startsWith(".png") ? "image/png" : "application/octet-stream",
+        "Content-Type": mimeType,
         "Content-Disposition": `inline; filename="${file.name}"`,
       },
     });

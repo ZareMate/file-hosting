@@ -4,15 +4,13 @@ import { Suspense } from "react";
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
-import Head from "next/head";
-import { number } from "zod";
-
-// import { SharePage } from "~/components/SharePage";
+import { SharePage } from "~/app/_components/SharePage";
 
 interface FileDetails {
   name: string;
   size: number;
   owner: string;
+  owneravatar: string | null;
   uploadDate: string;
   id: string;
   isOwner: boolean;
@@ -20,13 +18,35 @@ interface FileDetails {
   url: string;
 }
 
-function UploadsPage() {
+
+function Details() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const fileId = searchParams.get("id");
   const [fileDetails, setFileDetails] = useState<FileDetails | null>(null);
   const [error, setError] = useState<string | null>(null);
-  // const mediasrc = SharePage() as string; // Replace with a valid string URL or logic to generate the URL
+
+  // Determine the file type based on the file extension
+  const fileType = fileDetails?.type === ".mp4"
+    ? "video/mp4"
+    : fileDetails?.type === ".webm"
+    ? "video/webm"
+    : fileDetails?.type === ".ogg"
+    ? "video/ogg"
+    : fileDetails?.type === ".jpg" || fileDetails?.type === ".jpeg"
+    ? "image/jpeg"
+    : fileDetails?.type === ".png"
+    ? "image/png"
+    : fileDetails?.type === ".gif"
+    ? "image/gif"
+    : fileDetails?.type === ".svg"
+    ? "image/svg+xml"
+    : fileDetails?.type === ".mp3"
+    ? "audio/mpeg"
+    : fileDetails?.type === ".wav"
+    ? "audio/wav"
+    // if fileType is not one of the above, set it to unknown
+    : "unknown";
 
   useEffect(() => {
     if (!fileId) {
@@ -41,7 +61,7 @@ function UploadsPage() {
           throw new Error("Failed to fetch file details");
         }
 
-        const data: FileDetails = await response.json(); // Explicitly type the response
+        const data: FileDetails = await response.json();
         setFileDetails(data);
       } catch (err) {
         console.error(err);
@@ -49,109 +69,8 @@ function UploadsPage() {
       }
     };
 
-    void fetchFileDetails(); // Use `void` to mark the promise as intentionally ignored
+    fetchFileDetails();
   }, [fileId]);
-
-  // set page og meta tags
-  useEffect(() => {
-    if (fileDetails) {
-      const ogTitle = `File Details: ${fileDetails.name}`;
-      // proper size conversion
-      const sizeInKB = fileDetails.size / 1024;
-      const sizeInMB = sizeInKB / 1024;
-      const sizeInGB = sizeInMB / 1024;
-      let sizeDescription: string = `${sizeInKB.toFixed(2)} KB`;
-      if (sizeInMB >= 1) {
-        sizeDescription = `${sizeInMB.toFixed(2)} MB`;
-      } else if (sizeInGB >= 1) {
-        sizeDescription = `${sizeInGB.toFixed(2)} GB`;
-      }
-      const ogDescription = `File Name: ${fileDetails.name}, Size: ${sizeDescription}, Owner: ${fileDetails.owner}, Upload Date: ${new Date(fileDetails.uploadDate).toLocaleString()}`;
-
-      // document.title = ogTitle;
-      // if meta og tags are not present, create them
-      if (!document.querySelector('meta[name="description"]')) {
-        const metaDescription = document.createElement("meta");
-        metaDescription.name = "description";
-        document.head.appendChild(metaDescription);
-      }
-      if (!document.querySelector('meta[property="og:title"]')) {
-        const metaOgTitle = document.createElement("meta");
-        metaOgTitle.setAttribute("property", "og:title");
-        document.head.appendChild(metaOgTitle);
-      }
-      if (!document.querySelector('meta[property="og:description"]')) {
-        const metaOgDescription = document.createElement("meta");
-        metaOgDescription.setAttribute("property", "og:description");
-        document.head.appendChild(metaOgDescription);
-      }
-      document.querySelector('meta[name="description"]')?.setAttribute("content", ogDescription);
-      document.querySelector('meta[property="og:title"]')?.setAttribute("content", ogTitle);
-      document.querySelector('meta[property="og:description"]')?.setAttribute("content", ogDescription);
-      
-
-    }
-  }, [fileDetails]);
-
-  const handleDownload = async () => {
-    try {
-      if (!fileDetails) {
-        toast.error("File details not available.");
-        return;
-      }
-          const response = await fetch(`/api/files/download?fileId=${encodeURIComponent(fileDetails.id)}&fileName=${encodeURIComponent(fileDetails.name)}`);
-          if (!response.ok) {
-            throw new Error("Failed to download file");
-          }
-          // Download the file with the correct filename
-          const blob = await response.blob();
-          const url = window.URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = fileDetails.name;
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
-          window.URL.revokeObjectURL(url);
-    
-          toast.success(`File "${fileDetails.name}" downloaded successfully!`);
-        } catch (err) {
-          console.error(err);
-          toast.error("Failed to download file.");
-        }
-      };
-
-  const handleShare = () => {
-    if (fileDetails) {
-      const shareableLink = `${window.location.origin}/share?id=${fileDetails.id}`;
-      navigator.clipboard
-        .writeText(shareableLink)
-        .then(() => toast.success("Shareable link copied to clipboard!"))
-        .catch(() => toast.error("Failed to copy link."));
-    }
-  };
-
-  const handleRemove = async () => {
-    try {
-      const response = await fetch(`/api/remove`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ id: fileDetails?.id }), // Use optional chaining
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to remove file");
-      }
-
-      toast.success("File removed successfully!");
-      router.push("/");
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to remove file.");
-    }
-  };
 
   if (error) {
     return <div className="text-red-500">{error}</div>;
@@ -194,57 +113,35 @@ function UploadsPage() {
           <span className="text-[hsl(280,100%,70%)]">File</span> Details
         </h1>
         <div className="mt-6">
-          {/* {(fileDetails.type.startsWith(".png") ||
-            fileDetails.type.startsWith(".jpg") ||
-            fileDetails.type.startsWith(".jpeg") ||
-            fileDetails.type.startsWith(".gif")) && (mediasrc && <img src={mediasrc} alt="Media preview" />)}
-          {(fileDetails.type.startsWith(".mp4") ||
-            fileDetails.type.startsWith(".webm") ||
-            fileDetails.type.startsWith(".ogg")) &&
-              (mediasrc &&
-              <video controls className="max-w-full max-h-96 rounded-lg shadow-md">
-                <source src={mediasrc} type="video" />
-                Your browser does not support the video tag.
-              </video>
-              )} */}
+          {// if fileType is not ubknown, show the media player
+            fileType && !fileType.startsWith("unknown") ? (
+              <SharePage fileId={fileDetails.id} fileType={fileType} />
+            ) : null}
+          
         </div>
         <div className="bg-white/10 shadow-md rounded-lg p-6 w-full max-w-md text-white">
           <p>
             <strong>Name:</strong> {fileDetails.name}
           </p>
           <p>
-            <strong>Size:</strong> {(fileDetails.size / 1024).toFixed(2)} KB
+            <strong>Size:</strong> { // format size
+              fileDetails.size > 1024 * 1024 * 1024 * 1024
+                ? (fileDetails.size / (1024 * 1024 * 1024 * 1024)).toFixed(2) + " TB"
+                : fileDetails.size > 1024 * 1024 * 1024
+                ? (fileDetails.size / (1024 * 1024 * 1024)).toFixed(2) + " GB"
+                : fileDetails.size > 1024 * 1024
+                ? (fileDetails.size / (1024 * 1024)).toFixed(2) + " MB"
+                : fileDetails.size > 1024
+                ? (fileDetails.size / 1024).toFixed(2) + " KB"
+                : fileDetails.size + " Bytes"
+            }
           </p>
           <p>
-            <strong>Owner:</strong> {fileDetails.owner}
+            <strong>Owner:</strong> <img className="rounded-md inline size-5" src={ fileDetails.owneravatar ? ( fileDetails.owneravatar) : ""} alt="owner image" /> {fileDetails.owner}
           </p>
           <p>
             <strong>Upload Date:</strong> {new Date(fileDetails.uploadDate).toLocaleString()}
           </p>
-        </div>
-        <div className="flex gap-4 mt-6">
-          <button
-            onClick={handleDownload}
-            className="rounded-full bg-blue-500 px-10 py-3 font-semibold no-underline transition hover:bg-blue-600"
-          >
-            Download
-          </button>
-          {fileDetails.isOwner && (
-            <>
-              <button
-                onClick={handleShare}
-                className="rounded-full bg-green-500 px-10 py-3 font-semibold no-underline transition hover:bg-green-600"
-              >
-                Share
-              </button>
-              <button
-                onClick={handleRemove}
-                className="rounded-full bg-red-500 px-10 py-3 font-semibold no-underline transition hover:bg-red-600"
-              >
-                Remove
-              </button>
-            </>
-          )}
         </div>
       </div>
     </main>
@@ -254,7 +151,7 @@ function UploadsPage() {
 export default function Page() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <UploadsPage />
+      <Details />
     </Suspense>
   );
 }

@@ -24,7 +24,8 @@ export async function GET(req: Request) {
     return NextResponse.json({
       name: file.name,
       size: file.size,
-      owner: file.uploadedBy?.name ?? "Unknown", // Use nullish coalescing
+      owner: file.uploadedBy?.name ?? null, // Use nullish coalescing
+      owneravatar: file.uploadedBy?.image ?? null,
       uploadDate: file.uploadDate,
       id: file.id,
       isOwner: session?.user?.id === file.uploadedById,
