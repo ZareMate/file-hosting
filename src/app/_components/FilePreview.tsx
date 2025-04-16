@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from "react";
 
-interface SharePageProps {
+interface FilePreviewProps {
   fileId: string;
   fileType: string; // Pass the file type as a prop
 }
 
-export function SharePage({ fileId, fileType }: SharePageProps) {
+export function FilePreview({ fileId, fileType }: FilePreviewProps) {
   const [mediaSrc, setMediaSrc] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 

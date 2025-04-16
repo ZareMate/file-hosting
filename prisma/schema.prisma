@@ -82,7 +82,7 @@ model File {
     size       Int      // Size in bytes
     extension  String
     uploadDate DateTime @default(now())
-
+    description String @default("")
     uploadedBy User?    @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
     uploadedById String?
 }

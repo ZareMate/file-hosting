@@ -1,16 +1,18 @@
-//!eslint-disable @typescript-eslint/no-unsafe-assignment
-//!eslint-disable @typescript-eslint/no-unsafe-argument
-
 "use client";
 
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { env } from "~/env.js";
-interface File {
+import { FilePreview } from "~/app/_components/FilePreview";
+import { useFileActions } from "~/app/_components/FileActions";
+
+interface FileDetails {
   id: string;
   name: string;
   url: string;
+  description: string;
+  extension: string;
 }
 
 interface FileGridProps {
@@ -18,18 +20,20 @@ interface FileGridProps {
 }
 
 export default function FileGrid({ session }: FileGridProps) {
-  const [files, setFiles] = useState<File[]>([]);
+  const [files, setFiles] = useState<FileDetails[]>([]);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const pageUrl = env.NEXT_PUBLIC_PAGE_URL; // Assuming PAGE_URL is defined in your environment variables
+  const pageUrl = env.NEXT_PUBLIC_PAGE_URL;
 
+  const { handleDownload, handleCopyUrl, handleRemove } = useFileActions(setFiles);
+
+  // Fetch files from the server
   const fetchFiles = async () => {
     try {
       const response = await fetch("/api/files");
-      if (!response.ok) {
-        throw new Error("Failed to fetch files");
-      }
-      const data = await response.json() as { files: File[] }; // Explicitly type the response
+      if (!response.ok) throw new Error("Failed to fetch files");
+
+      const data = (await response.json()) as { files: FileDetails[] };
       setFiles(data.files);
     } catch (err) {
       console.error(err);
@@ -37,49 +41,38 @@ export default function FileGrid({ session }: FileGridProps) {
     }
   };
 
-  const handleDownload = async (fileId: string, fileName: string) => {
-    try {
-      const response = await fetch(`/api/files/download?fileId=${encodeURIComponent(fileId)}&fileName=${encodeURIComponent(fileName)}`);
-      if (!response.ok) {
-        throw new Error("Failed to download file");
-      }
-      // Download the file with the correct filename
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = fileName;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
-
-      toast.success(`File "${fileName}" downloaded successfully!`);
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to download file.");
-    }
+  // Determine file type based on extension
+  const getFileType = (extension: string): string => {
+    const fileTypes: Record<string, string> = {
+      ".mp4": "video/mp4",
+      ".webm": "video/webm",
+      ".ogg": "video/ogg",
+      ".jpg": "image/jpeg",
+      ".jpeg": "image/jpeg",
+      ".png": "image/png",
+      ".gif": "image/gif",
+      ".svg": "image/svg+xml",
+      ".mp3": "audio/mpeg",
+      ".wav": "audio/wav",
+    };
+    return fileTypes[extension] || "unknown";
   };
 
+  // Handle real-time updates via SSE
   useEffect(() => {
     if (!session?.user) {
       setError("You must be logged in to view files.");
       return;
     }
 
-    // Fetch files initially
     void fetchFiles();
 
-    // Listen for real-time updates via SSE
     const eventSource = new EventSource("/api/files/stream");
-
     eventSource.onmessage = (event) => {
-      const data: { type: string; file?: File; fileId?: string } = JSON.parse(event.data); // Explicitly type the parsed data
+      const data: { type: string; file?: FileDetails; fileId?: string } = JSON.parse(event.data);
 
       if (data.type === "file-added" && data.file) {
-        if (data.file) {
-          setFiles((prevFiles) => [...prevFiles, data.file as File]);
-        }
+        setFiles((prevFiles) => (data.file ? [...prevFiles, data.file] : prevFiles));
         toast.success(`File "${data.file.name}" added!`);
       } else if (data.type === "file-removed" && data.fileId) {
         setFiles((prevFiles) => prevFiles.filter((file) => file.id !== data.fileId));
@@ -91,59 +84,35 @@ export default function FileGrid({ session }: FileGridProps) {
       eventSource.close();
     };
 
-    return () => {
-      eventSource.close(); // Cleanup on unmount
-    };
+    return () => eventSource.close();
   }, [session]);
-
-  const handleCopyUrl = (url: string) => {
-    navigator.clipboard
-      .writeText(pageUrl + url)
-      .then(() => toast.success("File URL copied to clipboard!"))
-      .catch(() => toast.error("Failed to copy URL."));
-  };
-
-  const handleRemove = async (fileId: string) => {
-    try {
-      const response = await fetch(`/api/remove`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ id: fileId }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to delete file");
-      }
-
-      setFiles((prevFiles) => prevFiles.filter((file) => file.id !== fileId));
-      toast.success("File removed successfully!");
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to remove file.");
-    }
-  };
 
   if (error) {
     return <div className="text-red-500">{error}</div>;
   }
 
   return (
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 md:gap-8">
-        {files.map((file) => (
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 md:gap-8">
+      {files.map((file) => {
+        const fileType = getFileType(file.extension);
+
+        return (
           <div
             key={file.id}
-            className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 hover:bg-white/20"
+            className="flex place-content-end max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 hover:bg-white/20"
           >
-            
-            <button onClick={() => router.push(env.NEXT_PUBLIC_PAGE_URL + file.url)}>
+            {fileType !== "unknown" && <div className=" self-center max-w-50"><FilePreview fileId={file.id} fileType={fileType} /></div>}
+
+            <button onClick={() => router.push(pageUrl + file.url)}>
               <h3 className="text-2xl font-bold">{file.name}</h3>
             </button>
-            <div className="flex gap-2">
+            {file.description && (<p className="text-sm text-gray-400">Description: {file.description}</p>)}
+            
+
+            <div className="flex self-center gap-2">
               {/* Download Button */}
               <button
-                onClick={() => handleDownload(file.id,file.name)}
+                onClick={() => handleDownload(file.id, file.name)}
                 className="flex items-center justify-center rounded-full bg-blue-500 p-2 hover:bg-blue-600"
               >
                 <svg
@@ -191,7 +160,7 @@ export default function FileGrid({ session }: FileGridProps) {
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
-                  viewBox="0 24 24"
+                  viewBox="0 0 24 24"
                   strokeWidth={2}
                   stroke="currentColor"
                   className="h-5 w-5 text-white"
@@ -205,7 +174,8 @@ export default function FileGrid({ session }: FileGridProps) {
               </button>
             </div>
           </div>
-        ))}
-      </div>
+        );
+      })}
+    </div>
   );
 }
