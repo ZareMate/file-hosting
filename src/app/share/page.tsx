@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
 import { FilePreview } from "~/app/_components/FilePreview";
@@ -20,7 +20,7 @@ interface FileDetails {
   description: string;
 }
 
-export default function FilePreviewContainer() {
+function FilePreviewContainerContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const fileId = searchParams.get("id");
@@ -34,7 +34,7 @@ export default function FilePreviewContainer() {
     setDescription,
     fileId || undefined
   );
-  
+
   const getFileType = (extension: string): string => {
     const fileTypes: Record<string, string> = {
       ".mp4": "video/mp4",
@@ -49,7 +49,7 @@ export default function FilePreviewContainer() {
       ".wav": "audio/wav",
     };
     return fileTypes[extension] || "unknown";
-  }
+  };
 
   useEffect(() => {
     if (!fileId) {
@@ -139,7 +139,6 @@ export default function FilePreviewContainer() {
           </h1>
           <div className="mt-6">
             {fileDetails.type !== "unknown" && (
-              
               <FilePreview fileId={fileDetails.id} fileType={getFileType(fileDetails.type)} />
             )}
           </div>
@@ -249,6 +248,14 @@ export default function FilePreviewContainer() {
         </div>
       </main>
     </>
+  );
+}
+
+export default function FilePreviewContainer() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <FilePreviewContainerContent />
+    </Suspense>
   );
 }
 
