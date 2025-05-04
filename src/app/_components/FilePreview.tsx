@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { getFileType } from "~/utils/fileType"; // Adjust the import path as necessary
 
 interface FilePreviewProps {
   fileId: string;
@@ -51,35 +52,6 @@ export function FilePreview({ fileId, fileType }: FilePreviewProps) {
   if (!mediaSrc) {
     return <div>Loading...</div>;
   }
-  const getFileType = (extension: string): string => {
-    const fileTypes: Record<string, string> = {
-      ".mp4": "video/mp4",
-      ".webm": "video/webm",
-      ".ogg": "video/ogg",
-      ".jpg": "image/jpeg",
-      ".jpeg": "image/jpeg",
-      ".png": "image/png",
-      ".gif": "image/gif",
-      ".svg": "image/svg+xml",
-      ".mp3": "audio/mpeg",
-      ".wav": "audio/wav",
-      ".zip": "archive/zip",
-      ".rar": "archive/rar",
-      ".pdf": "text/pdf",
-      ".txt": "text/plain",
-      ".c" : "code/c",
-      ".cpp" : "code/cpp",
-      ".py" : "code/python",
-      ".js" : "code/javascript",
-      ".html" : "code/html",
-      ".css" : "code/css",
-      ".md" : "markdown/markdown",
-      ".json" : "code/json",
-      ".xml" : "code/xml",
-      ".csv" : "code/csv",
-    };
-    return fileTypes[extension] || "unknown";
-  };
 
   if (getFileType(fileType).startsWith("video")) {
     return (
