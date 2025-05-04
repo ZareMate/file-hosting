@@ -51,8 +51,37 @@ export function FilePreview({ fileId, fileType }: FilePreviewProps) {
   if (!mediaSrc) {
     return <div>Loading...</div>;
   }
+  const getFileType = (extension: string): string => {
+    const fileTypes: Record<string, string> = {
+      ".mp4": "video/mp4",
+      ".webm": "video/webm",
+      ".ogg": "video/ogg",
+      ".jpg": "image/jpeg",
+      ".jpeg": "image/jpeg",
+      ".png": "image/png",
+      ".gif": "image/gif",
+      ".svg": "image/svg+xml",
+      ".mp3": "audio/mpeg",
+      ".wav": "audio/wav",
+      ".zip": "archive/zip",
+      ".rar": "archive/rar",
+      ".pdf": "text/pdf",
+      ".txt": "text/plain",
+      ".c" : "code/c",
+      ".cpp" : "code/cpp",
+      ".py" : "code/python",
+      ".js" : "code/javascript",
+      ".html" : "code/html",
+      ".css" : "code/css",
+      ".md" : "markdown/markdown",
+      ".json" : "code/json",
+      ".xml" : "code/xml",
+      ".csv" : "code/csv",
+    };
+    return fileTypes[extension] || "unknown";
+  };
 
-  if (fileType.startsWith("video")) {
+  if (getFileType(fileType).startsWith("video")) {
     return (
       <video
         controls
@@ -63,7 +92,7 @@ export function FilePreview({ fileId, fileType }: FilePreviewProps) {
       </video>
     );
   }
-  if (fileType.startsWith("audio")) {
+  if (getFileType(fileType).startsWith("audio")) {
     return (
       <audio
         controls
@@ -74,6 +103,29 @@ export function FilePreview({ fileId, fileType }: FilePreviewProps) {
       </audio>
     );
   }
+  if (getFileType(fileType).startsWith("image")) {
+    return <img src={mediaSrc} alt="Media preview" className="max-w-full max-h-96 rounded-lg shadow-md" />;
+  }
 
-  return <img src={mediaSrc} alt="Media preview" className="max-w-full max-h-96 rounded-lg shadow-md" />;
+  if (getFileType(fileType).startsWith("text")) {
+    return (
+      <img src="/icons/files/text.svg" alt="Text file preview" className="max-w-full max-h-96 rounded-lg invert" />
+    );
+  }
+  if (getFileType(fileType).startsWith("archive")) {
+    return (
+      <img src="/icons/files/archive.svg" alt="Archive file preview" className="max-w-full max-h-96 rounded-lg invert" />
+    );
+  }
+  if (getFileType(fileType).startsWith("code")) {
+    return (
+      <img src="/icons/files/code.svg" alt="Code file preview" className="max-w-full max-h-96 rounded-lg invert" />
+    );
+  }
+  // if (getFileType(fileType).startsWith("markdown")) {
+  //   return;      
+  //   }
+
+
+  return;
 }

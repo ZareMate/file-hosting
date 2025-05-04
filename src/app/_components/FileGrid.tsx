@@ -103,7 +103,7 @@ export default function FileGrid({ session }: FileGridProps) {
             key={file.id}
             className="flex place-content-end max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 hover:bg-white/20"
           >
-            {fileType !== "unknown" && <div className=" self-center max-w-50"><FilePreview fileId={file.id} fileType={fileType} /></div>}
+            {<div className=" self-center max-w-50"><FilePreview fileId={file.id} fileType={file.extension} /></div>}
 
             <button onClick={() => router.push(pageUrl + file.url)}>
               <h3 className="text-2xl font-bold">{file.name}</h3>

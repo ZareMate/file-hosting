@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import path from "path";
 import { promises as fs } from "fs";
 import { db } from "~/server/db";
+import { getFileType } from "~/utils/fileType";
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
@@ -27,25 +28,8 @@ export async function GET(req: Request) {
     // Read the file from the filesystem
     const fileBuffer = await fs.readFile(filePath);
 
-    const mimeType = file.extension === ".mp4"
-      ? "video/mp4"
-      : file.extension === ".webm"
-      ? "video/webm"
-      : file.extension === ".ogg"
-      ? "video/ogg"
-      : file.extension === ".jpg" || file.extension === ".jpeg"
-      ? "image/jpeg"
-      : file.extension === ".png"
-      ? "image/png"
-      : file.extension === ".gif"
-      ? "image/gif"
-      : file.extension === ".svg"
-      ? "image/svg+xml"
-      : file.extension === ".mp3"
-      ? "audio/mpeg"
-      : file.extension === ".wav"
-      ? "audio/wav"
-      : "application/octet-stream";
+    const mimeType = getFileType(path.extname(file.name)); // Get the MIME type based on the file extension
+
 
     // Return the file as a binary response
     return new Response(fileBuffer, {
