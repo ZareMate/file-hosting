@@ -89,7 +89,7 @@ export function FilePreview({ fileId, fileType }: FilePreviewProps) {
       <img src="/icons/files/archive.svg" alt="Archive file preview" className="max-w-full max-h-96 rounded-lg invert" />
     );
   }
-  if (getFileType(fileType).startsWith("code")) {
+  if (getFileType(fileType).startsWith("code") || getFileType(fileType).startsWith("markdown")) {
     return (
       <img src="/icons/files/code.svg" alt="Code file preview" className="max-w-full max-h-96 rounded-lg invert" />
     );
