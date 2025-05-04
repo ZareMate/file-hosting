@@ -22,8 +22,12 @@ export async function DELETE(req: Request) {
       where: { id: body.id },
     });
 
-    if (!resource || resource.uploadedById !== session.user.id) {
-      return NextResponse.json({ error: "Resource not found or unauthorized" }, { status: 404 });
+    if (!resource) {
+      return NextResponse.json({ error: "File not found" }, { status: 404 });
+    }
+
+    if (resource.uploadedById !== session.user.id) {
+      return NextResponse.json({ error: "You are not authorized to delete this file" }, { status: 403 });
     }
 
     const filePath = path.join(process.cwd(), "uploads", path.basename(body.id));
@@ -37,9 +41,9 @@ export async function DELETE(req: Request) {
 
     notifyClients({ type: "file-removed", fileId: body.id });
 
-    return NextResponse.json({ message: "Resource deleted successfully" });
+    return NextResponse.json({ message: "File deleted successfully" });
   } catch (error) {
-    console.error("Error deleting resource:", error);
-    return NextResponse.json({ error: "Failed to delete resource" }, { status: 500 });
+    console.error("Error deleting file:", error);
+    return NextResponse.json({ error: "Failed to delete file" }, { status: 500 });
   }
 }
