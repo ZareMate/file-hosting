@@ -48,7 +48,8 @@ export async function PUT(req: Request) {
 
   try {
     const body = (await req.json()) as { id: string; description: string } | null;
-    if (!body?.id || !body.description) {
+    if (!body?.id || body.description === undefined) {
+      // Allow empty description but ensure id is present
       return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
     }
 

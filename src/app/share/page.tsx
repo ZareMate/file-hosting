@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { FilePreview } from "~/app/_components/FilePreview";
 import { HomeButton } from "~/app/_components/HomeButton"; // Import the client component
 import { Toaster } from "react-hot-toast";
-import { FileActionsContainer } from "~/app/_components/ActionButtons"; // Import the client component
+import { FileActionsContainer, FileDescriptionContainer } from "~/app/_components/ActionButtons"; // Import the client component
 import Head from "next/head";
 
 interface FileDetails {
@@ -143,10 +143,10 @@ export default async function FilePreviewContainer({
               <strong>Upload Date:</strong>{" "}
               {new Date(fileDetails.uploadDate).toLocaleString()}
             </p>
-            <p>
+            <div>
               <strong>Description:</strong>{" "}
-              {fileDetails.description || "No description available"}
-            </p>
+              <FileDescriptionContainer fileId={fileDetails.id} fileDescriprtion={fileDetails.description}/>
+            </div>
             <div className="mt-4 flex justify-center">
               <FileActionsContainer
                 fileId={fileDetails.id}

@@ -1,5 +1,6 @@
 'use client';
-import {useFileActions} from "~/app/_components/FileActions";
+import { useRef, useState } from "react";
+import { useFileActions } from "~/app/_components/FileActions";
 
 export function FileActionsContainer({
   fileId,
@@ -12,7 +13,7 @@ export function FileActionsContainer({
   fileUrl: string;
   isOwner: boolean;
 }) {
-  const { handleDownload, handleCopyUrl, handleRemove } = useFileActions(() => fileId, (description: string) => {
+  const { handleDownload, handleCopyUrl, handleRemove} = useFileActions(() => fileId, (description: string) => {
     if (isOwner) {
       console.log(description);
     }
@@ -82,6 +83,38 @@ export function FileActionsContainer({
           />
         </svg>
       </button>
+    </div>
+  );
+}
+
+export function FileDescriptionContainer({
+  fileId,
+  fileDescriprtion,
+}: {
+  fileId: string;
+  fileDescriprtion?: string;
+}) {
+
+  const [description, setDescription] = useState(fileDescriprtion || ""); // Add state for description
+  const { handleDescriptionChange } = useFileActions(() => {}, (description: string) => {
+    setDescription(description);
+    return undefined;
+  }, fileId); // Wrap setDescription in a function
+  const debounceTimer = useRef<NodeJS.Timeout | null>(null); // Initialize debounce timer
+
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    handleDescriptionChange(e, debounceTimer); // Pass the debounce timer
+  };
+
+  return (
+    <div className="flex self-center gap-2">
+      <textarea
+        className="w-full h-24 p-2 border rounded-md bg-gray-800 text-white"
+        value={description} // Use state value
+        onChange={handleChange}
+        placeholder="Enter file description..."
+        maxLength={200} // Limit to 200 characters
+      />
     </div>
   );
 }

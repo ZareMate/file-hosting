@@ -4,7 +4,7 @@ import { notifyClients } from "~/utils/notifyClients";
 
 export const useFileActions = (
   setFiles: (callback: (prevFiles: any[]) => any[]) => void,
-  setDescription?: (description: string) => void,
+  setDescription?: (description: string) => undefined,
   fileId?: string
 ) => {
   const pageUrl = `${env.NEXT_PUBLIC_PAGE_URL}`;
@@ -75,7 +75,9 @@ export const useFileActions = (
     e: React.ChangeEvent<HTMLTextAreaElement>,
     debounceTimer: React.RefObject<NodeJS.Timeout | null>
   ) => {
-    if (!setDescription) return;
+    if (setDescription === undefined) {console.error("setDescription function is not provided") 
+      return;
+    };
 
     const newDescription = e.target.value;
     setDescription(newDescription);
@@ -83,7 +85,9 @@ export const useFileActions = (
     if (debounceTimer.current) {
       clearTimeout(debounceTimer.current);
     }
+
     debounceTimer.current = setTimeout(() => {
+      console.log("Calling handleDescriptionSave"); // Debug log
       handleDescriptionSave(newDescription);
     }, 1000);
   };
@@ -99,7 +103,8 @@ export const useFileActions = (
       const response = await fetch(`/api/files/share?id=${encodeURIComponent(fileId)}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ description }),
+        // pass the fileId and description in the request body
+        body: JSON.stringify({ description, id: fileId }),
       });
 
       if (response.status === 403) {
