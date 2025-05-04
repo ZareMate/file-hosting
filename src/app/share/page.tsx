@@ -41,9 +41,10 @@ async function fetchFileDetails(fileId: string): Promise<FileDetails | null> {
 export default async function FilePreviewContainer({
   searchParams,
 }: {
-  searchParams: { id?: string };
+  searchParams: Promise<{ id?: string }>;
 }) {
-  const fileId = searchParams.id;
+  const resolvedSearchParams = await searchParams; // Resolve the promise
+  const fileId = resolvedSearchParams.id;
 
   if (!fileId) {
     notFound();
@@ -145,7 +146,7 @@ export default async function FilePreviewContainer({
             </p>
             <div>
               <strong>Description:</strong>{" "}
-              <FileDescriptionContainer fileId={fileDetails.id} fileDescriprtion={fileDetails.description}/>
+              <FileDescriptionContainer fileId={fileDetails.id} fileDescription={fileDetails.description}/>
             </div>
             <div className="mt-4 flex justify-center">
               <FileActionsContainer
