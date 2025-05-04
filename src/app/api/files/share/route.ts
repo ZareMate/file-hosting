@@ -41,23 +41,37 @@ export async function GET(req: Request) {
 
 export async function PUT(req: Request) {
   const session = await auth();
-  const url = new URL(req.url);
-  const fileId = url.searchParams.get("id");
-  const { description = "" } = await req.json();
 
-  if (!fileId) {
-    return NextResponse.json({ error: "File name is required" }, { status: 400 });
+  if (!session?.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
-    const file = await db.file.update({
-      where: { id: fileId },
-      data: { description },
+    const body = (await req.json()) as { id: string; description: string } | null;
+    if (!body?.id || !body.description) {
+      return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+    }
+
+    const resource = await db.file.findUnique({
+      where: { id: body.id },
     });
 
-    return NextResponse.json(file);
+    if (!resource) {
+      return NextResponse.json({ error: "File not found" }, { status: 404 });
+    }
+
+    if (resource.uploadedById !== session.user.id) {
+      return NextResponse.json({ error: "You are not authorized to modify this file" }, { status: 403 });
+    }
+
+    await db.file.update({
+      where: { id: body.id },
+      data: { description: body.description },
+    });
+
+    return NextResponse.json({ message: "Description updated successfully" });
   } catch (error) {
-    console.error("Error updating file description:", error);
-    return NextResponse.json({ error: "Failed to update file description" }, { status: 500 });
+    console.error("Error updating description:", error);
+    return NextResponse.json({ error: "Failed to update description" }, { status: 500 });
   }
 }

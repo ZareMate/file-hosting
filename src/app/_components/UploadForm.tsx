@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import toast, { Toaster } from "react-hot-toast";
+import { notifyClients } from "~/utils/notifyClients";
 
 export default function UploadForm() {
   const [file, setFile] = useState<File | null>(null);
@@ -42,6 +43,7 @@ export default function UploadForm() {
         if (xhr.status === 200) {
           const response: { url: string } = JSON.parse(xhr.responseText); // Explicitly type the response
           setUploadedFileUrl(response.url); // Assume the API returns the uploaded file URL
+          notifyClients({type: "file-uploaded", fileUrl: response.url}); // Notify other clients about the new file
           toast.success("File uploaded successfully!");
 
           // Clear the file input and reset state

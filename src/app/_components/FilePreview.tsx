@@ -21,7 +21,7 @@ export function FilePreview({ fileId, fileType }: FilePreviewProps) {
 
     const fetchMedia = async () => {
       try {
-        const response = await fetch(`/api/serv?id=${encodeURIComponent(fileId)}`);
+        const response = await fetch(`/api/files/serv?id=${encodeURIComponent(fileId)}`);
         if (!response.ok) {
           throw new Error("Failed to fetch media");
         }

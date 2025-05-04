@@ -1,12 +1,13 @@
 import toast from "react-hot-toast";
 import { env } from "~/env.js";
+import { notifyClients } from "~/utils/notifyClients";
 
 export const useFileActions = (
   setFiles: (callback: (prevFiles: any[]) => any[]) => void,
   setDescription?: (description: string) => void,
   fileId?: string
 ) => {
-  const pageUrl = `${env.NEXT_PUBLIC_PAGE_URL}/share?id=`;
+  const pageUrl = `${env.NEXT_PUBLIC_PAGE_URL}`;
 
   // Handle file download
   const handleDownload = async (fileId: string, fileName: string) => {
@@ -44,15 +45,25 @@ export const useFileActions = (
   // Remove a file
   const handleRemove = async (fileId: string) => {
     try {
-      const response = await fetch(`/api/remove`, {
+      const response = await fetch(`/api/files/remove`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: fileId }),
       });
+
+      if (response.status === 403) {
+        toast.error("You are not authorized to remove this file.");
+        return;
+      }
+
       if (!response.ok) throw new Error("Failed to delete file");
 
       setFiles((prevFiles) => prevFiles.filter((file) => file.id !== fileId));
       toast.success("File removed successfully!");
+      // Go to the home page after removing the file
+      window.location.href = `${pageUrl}/`;
+      notifyClients({ type: "file-removed", fileId });
+
     } catch (err) {
       console.error(err);
       toast.error("Failed to remove file.");
@@ -85,14 +96,21 @@ export const useFileActions = (
     }
 
     try {
-      const response = await fetch(`/api/share?id=${encodeURIComponent(fileId)}`, {
+      const response = await fetch(`/api/files/share?id=${encodeURIComponent(fileId)}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ description }),
       });
+
+      if (response.status === 403) {
+        toast.error("You are not authorized to modify this file's description.");
+        return;
+      }
+
       if (!response.ok) throw new Error("Failed to update description");
 
       toast.success("Description updated successfully!");
+      notifyClients({ type: "file-updated", fileId });
     } catch (err) {
       console.error(err);
       toast.error("Failed to update description.");
