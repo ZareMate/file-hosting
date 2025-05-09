@@ -16,7 +16,6 @@ interface FileDetails {
   type: string;
   url: string;
   description: string;
-  isPublic: boolean;
 }
 
 async function fetchFileDetails(fileId: string): Promise<FileDetails | null> {
@@ -52,7 +51,6 @@ export default async function FilePreviewContainer({
   }
 
   const fileDetails = await fetchFileDetails(fileId);
-  
 
   if (!fileDetails) {
     return (
@@ -156,7 +154,6 @@ export default async function FilePreviewContainer({
                 fileName={fileDetails.name}
                 fileUrl={fileDetails.url}
                 isOwner={fileDetails.isOwner}
-                isPublic={fileDetails.isPublic}
               />
             </div>
           </div>
