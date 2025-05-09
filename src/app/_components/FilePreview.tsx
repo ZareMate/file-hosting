@@ -12,6 +12,8 @@ export function FilePreview({ fileId, fileType }: FilePreviewProps) {
   const [mediaSrc, setMediaSrc] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  console.log("File Type:", fileType);
+
   useEffect(() => {
     if (!fileId) {
       setError("File ID is required.");
@@ -53,7 +55,7 @@ export function FilePreview({ fileId, fileType }: FilePreviewProps) {
     return <div>Loading...</div>;
   }
 
-  if (getFileType(fileType).startsWith("video")) {
+  if (fileType.startsWith("video")) {
     return (
       <video
         controls
@@ -64,7 +66,7 @@ export function FilePreview({ fileId, fileType }: FilePreviewProps) {
       </video>
     );
   }
-  if (getFileType(fileType).startsWith("audio")) {
+  if (fileType.startsWith("audio")) {
     return (
       <audio
         controls
@@ -75,29 +77,31 @@ export function FilePreview({ fileId, fileType }: FilePreviewProps) {
       </audio>
     );
   }
-  if (getFileType(fileType).startsWith("image")) {
+  if (fileType.startsWith("image")) {
     return <img src={mediaSrc} alt="Media preview" className="max-w-full max-h-96 rounded-lg shadow-md" />;
   }
 
-  if (getFileType(fileType).startsWith("text")) {
+  if (fileType.startsWith("text")) {
     return (
       <img src="/icons/files/text.svg" alt="Text file preview" className="max-w-full max-h-96 rounded-lg invert" />
     );
   }
-  if (getFileType(fileType).startsWith("archive")) {
+  if (fileType.startsWith("archive")) {
     return (
       <img src="/icons/files/archive.svg" alt="Archive file preview" className="max-w-full max-h-96 rounded-lg invert" />
     );
   }
-  if (getFileType(fileType).startsWith("code") || getFileType(fileType).startsWith("markdown")) {
+  if (fileType.startsWith("code") || fileType.startsWith("markdown")) {
     return (
       <img src="/icons/files/code.svg" alt="Code file preview" className="max-w-full max-h-96 rounded-lg invert" />
     );
   }
-  // if (getFileType(fileType).startsWith("markdown")) {
+  // if (fileType.startsWith("markdown")) {
   //   return;      
   //   }
 
+  // log file type
+  console.log("Unsupported file type:", fileType);
 
   return;
 }

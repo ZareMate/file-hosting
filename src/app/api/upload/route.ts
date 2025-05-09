@@ -1,12 +1,10 @@
 import { NextResponse } from "next/server";
-import { promises as fs } from "fs";
-import path from "path";
-import { db } from "~/server/db";
-import { auth } from "~/server/auth";
 import Busboy from "busboy";
 import { Readable } from "stream";
-import { notifyClients } from "~/utils/notifyClients";
 import crypto from "crypto";
+import { db } from "~/server/db";
+import { auth } from "~/server/auth";
+import { minioClient, ensureBucketExists } from "~/utils/minioClient";
 
 export const config = {
   api: {
@@ -16,15 +14,12 @@ export const config = {
 
 export async function POST(req: Request) {
   const session = await auth();
-  // generate id for the file
-  const guid = crypto.randomUUID();
-
   if (!session?.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const uploadDir = path.join(process.cwd(), "uploads");
-  await fs.mkdir(uploadDir, { recursive: true });
+  const bucketName = process.env.MINIO_BUCKET || "file-hosting";
+  await ensureBucketExists(bucketName);
 
   return new Promise<Response>((resolve, reject) => {
     const busboy = Busboy({ headers: { "content-type": req.headers.get("content-type") ?? "" } });
@@ -35,57 +30,39 @@ export async function POST(req: Request) {
       fileName = info.filename || "uploaded-file";
       const chunks: Buffer[] = [];
 
-      // Check if a file with the same name already exists for the user
-      const existingFile = await db.file.findFirst({
-        where: {
-          name: fileName,
-          uploadedById: session.user.id,
-        },
-      });
-
-      if (existingFile) {
-        // Modify the file name to make it unique
-        const fileExtension = path.extname(fileName);
-        const baseName = path.basename(fileName, fileExtension);
-        fileName = `${baseName}-${Date.now()}${fileExtension}`;
-      }
-  
       file.on("data", (chunk) => {
         chunks.push(chunk);
       });
 
-      file.on("end", () => {
+      file.on("end", async () => {
         fileBuffer = Buffer.concat(chunks);
-      });
-    });
 
-    busboy.on("finish", () => {
-      void (async () => {
+        // Generate a unique ID for the file
+        const fileId = crypto.randomUUID();
+        const objectName = `${fileId}-${fileName}`;
+
         try {
-          const filePath = path.join(uploadDir, guid);
-          await fs.writeFile(filePath, fileBuffer);
+          // Upload the file to MinIO
+          await minioClient.putObject(bucketName, objectName, fileBuffer);
 
           // Save file metadata to the database
           const newFile = await db.file.create({
             data: {
-              id: guid,
-              url: `/share?id=${guid}`,
+              id: fileId,
+              url: `/share?id=${fileId}`,
               name: fileName,
               size: fileBuffer.length,
-              extension: path.extname(fileName),
+              extension: info.mimeType,
               uploadedById: session.user.id,
             },
           });
 
-          // Notify clients about the new file
-          notifyClients({ type: "file-added", file: newFile });
-
-          resolve(NextResponse.json({ message: "File uploaded successfully" }));
+          resolve(NextResponse.json({ message: "File uploaded successfully", file: newFile }));
         } catch (error) {
-          console.error("Error handling upload:", error);
-          resolve(NextResponse.json({ error: "Failed to upload file" }, { status: 500 }));
+          console.error("Error uploading file to MinIO:", error);
+          reject(new Error("Failed to upload file"));
         }
-      })();
+      });
     });
 
     busboy.on("error", (error: unknown) => {
