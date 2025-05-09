@@ -8,14 +8,35 @@ import { Toaster } from "react-hot-toast";
 export default async function Home() {
   const session = await auth();
 
-
   return (
     <HydrateClient>
       <Toaster position="top-right" reverseOrder={false} />
       <main className="relative flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
         {/* Top-right corner sign-out button */}
         {session?.user && (
-          <div className="absolute top-4 right-4">
+          <div className="absolute top-4 right-4 flex items-center gap-4">
+            {/* Search Button */}
+            <Link
+              href="/search"
+              className="rounded-full bg-white/10 p-2 transition hover:bg-white/20"
+              aria-label="Search"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6 text-white"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-4.35-4.35M16.65 10.65a6 6 0 11-12 0 6 6 0 0112 0z"
+                />
+              </svg>
+            </Link>
+
             <Link
               href="/api/auth/signout"
               className="rounded-full bg-white/10 px-4 py-2 font-semibold no-underline transition hover:bg-white/20"
@@ -33,7 +54,7 @@ export default async function Home() {
           {session?.user ? (
             <>
               <FileGrid session={session} />
-              <UploadForm/>
+              <UploadForm />
             </>
           ) : (
             <p className="text-center text-2xl text-white">
@@ -41,16 +62,16 @@ export default async function Home() {
             </p>
           )}
           {!session?.user && (
-          <div className="flex flex-col items-center gap-2">
-            <div className="flex flex-col items-center justify-center gap-4">
-              <Link
-                href={session ? "/api/auth/signout" : "/api/auth/signin"}
-                className="rounded-full bg-white/10 px-10 py-3 font-semibold no-underline transition hover:bg-white/20"
-              >
-                {session ? "Sign out" : "Sign in"}
-              </Link>
+            <div className="flex flex-col items-center gap-2">
+              <div className="flex flex-col items-center justify-center gap-4">
+                <Link
+                  href={session ? "/api/auth/signout" : "/api/auth/signin"}
+                  className="rounded-full bg-white/10 px-10 py-3 font-semibold no-underline transition hover:bg-white/20"
+                >
+                  {session ? "Sign out" : "Sign in"}
+                </Link>
+              </div>
             </div>
-          </div>
           )}
         </div>
       </main>
