@@ -21,7 +21,7 @@ export async function GET(req: Request) {
     return new Response(fileBuffer, {
       headers: {
         "Content-Type": "application/octet-stream",
-        "Content-Disposition": `attachment; filename="${fileName}"`,
+        "Content-Disposition": `attachment; filename="${fileName}" , fileId="${fileId}"`,
       },
     });
   } catch (error) {
