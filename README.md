@@ -85,3 +85,6 @@ This is a [T3 Stack](https://create.t3.gg/) project. It provides a file hosting 
    ```bash
    git clone https://github.com/your-username/file-hosting.git
    cd file-hosting
+   npm install
+   npm run build
+   npm run start
