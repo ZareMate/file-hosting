@@ -1,29 +1,87 @@
-# Create T3 App
+# File Hosting App
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+This is a [T3 Stack](https://create.t3.gg/) project. It provides a file hosting service where users can upload, download, and manage files.
 
-## What's next? How do I make an app with this?
+## Features
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+- User authentication with NextAuth.js
+- File upload and download using MinIO
+- File metadata management with Prisma
+- Real-time updates using Server-Sent Events (SSE)
+- Responsive UI built with Tailwind CSS
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+## Technologies Used
 
 - [Next.js](https://nextjs.org)
 - [NextAuth.js](https://next-auth.js.org)
 - [Prisma](https://prisma.io)
-- [Drizzle](https://orm.drizzle.team)
+- [MinIO](https://min.io)
 - [Tailwind CSS](https://tailwindcss.com)
 - [tRPC](https://trpc.io)
 
-## Learn More
+## API Documentation
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+### **Download File**
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+**Endpoint**: `/api/files/download`
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+**Method**: `GET`
 
-## How do I deploy this?
+**Query Parameters**:
+- `fileId` (required): The ID of the file to download.
+- `fileName` (required): The name of the file to download.
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+**Response**:
+- **200 OK**: Returns the file as a binary stream.
+- **400 Bad Request**: If `fileId` or `fileName` is missing.
+- **404 Not Found**: If the file does not exist.
+- **500 Internal Server Error**: If there is an error fetching the file.
+
+---
+
+### **Serve File**
+
+**Endpoint**: `/api/files/serv`
+
+**Method**: `GET`
+
+**Query Parameters**:
+- `id` (required): The ID of the file to serve.
+
+**Response**:
+- **200 OK**: Returns the file as a binary stream with the appropriate MIME type.
+- **400 Bad Request**: If `id` is missing.
+- **404 Not Found**: If the file does not exist.
+- **500 Internal Server Error**: If there is an error fetching the file.
+
+---
+
+### **List Files**
+
+**Endpoint**: `/api/files`
+
+**Method**: `GET`
+
+**Response**:
+- **200 OK**: Returns a list of files with metadata.
+- **500 Internal Server Error**: If there is an error fetching the files.
+
+---
+
+### **Real-Time Updates**
+
+**Endpoint**: `/api/files/stream`
+
+**Method**: `GET`
+
+**Response**:
+- **200 OK**: Streams real-time updates for file additions and removals.
+
+---
+
+## How to Run Locally
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-username/file-hosting.git
+   cd file-hosting
