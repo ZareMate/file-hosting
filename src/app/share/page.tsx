@@ -7,11 +7,14 @@ import {
   FileDescriptionContainer,
 } from "~/app/_components/ActionButtons"; // Import the client component
 import type { Metadata } from "next";
+import { checkOwner } from "~/utils/checkOwner"; // Import the client component
+import { auth } from "~/server/auth";
 
 interface FileDetails {
   name: string;
   size: number;
   owner: string;
+  ownerId: string;
   ownerAvatar: string | null;
   uploadDate: string;
   id: string;
@@ -96,6 +99,7 @@ export default async function FilePreviewContainer({
   }
 
   const fileDetails = await fetchFileDetails(fileId);
+  const session = await auth();
 
   if (!fileDetails) {
     return (
@@ -167,7 +171,7 @@ export default async function FilePreviewContainer({
               fileId={fileDetails.id}
               fileName={fileDetails.name}
               fileUrl={fileDetails.url}
-              isOwner={true}
+              isOwner={session?.user?.id ? await checkOwner(fileDetails.ownerId, session.user.id) : false}
               isPublic={fileDetails.isPublic}
             />
           </div>

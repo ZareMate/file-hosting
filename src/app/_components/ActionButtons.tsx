@@ -93,12 +93,12 @@ export function FileActionsContainer({
           console.error(err);
         }
         }}
-        className="flex items-center justify-center rounded-full bg-gray-500 p-2 hover:bg-gray-600"
+        className="flex items-center justify-center rounded-full bg-gray-500 p-2 hover:bg-gray-600 transition-all duration-300"
       >
         <img
         src={isPublic ? "/icons/public.svg" : "/icons/private.svg"}
         alt={isPublic ? "Public" : "Private"}
-        className="h-6 w-6"
+        className={`h-6 w-6 transition-transform duration-300 ${isPublic ? 'rotate-360' : 'rotate-0'}`}
         />
       </button>
       )}

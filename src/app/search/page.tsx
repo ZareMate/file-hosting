@@ -10,6 +10,7 @@ interface FileDetails {
   name: string;
   size: number;
   owner: string;
+  ownerId: string;
   ownerAvatar: string | null;
   uploadDate: string;
   id: string;
@@ -107,7 +108,7 @@ export default function SearchFile() {
                     fileId={file.id}
                     fileName={file.name}
                     fileUrl={file.url}
-                    isOwner={false} // Check if the user is the owner
+                    isOwner={false}
                     isPublic={file.isPublic} // Check if the file is public
                   />
                 </div>

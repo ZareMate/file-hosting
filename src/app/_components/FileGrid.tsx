@@ -7,6 +7,7 @@ import { env } from "~/env.js";
 import { FilePreview } from "~/app/_components/FilePreview";
 import { useFileActions } from "~/app/_components/FileActions";
 import { FileActionsContainer } from "./ActionButtons";
+import { checkOwner } from "~/utils/checkOwner"; // Import the client component
 
 interface FileDetails {
   id: string;
