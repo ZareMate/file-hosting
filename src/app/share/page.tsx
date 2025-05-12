@@ -6,7 +6,6 @@ import {
   FileActionsContainer,
   FileDescriptionContainer,
 } from "~/app/_components/ActionButtons"; // Import the client component
-import Head from "next/head";
 import type { Metadata } from "next";
 
 interface FileDetails {
@@ -135,10 +134,10 @@ export default async function FilePreviewContainer({
             {fileDetails.size > 1024 * 1024 * 1024
               ? (fileDetails.size / (1024 * 1024 * 1024)).toFixed(2) + " GB"
               : fileDetails.size > 1024 * 1024
-                ? (fileDetails.size / (1024 * 1024)).toFixed(2) + " MB"
-                : fileDetails.size > 1024
-                  ? (fileDetails.size / 1024).toFixed(2) + " KB"
-                  : fileDetails.size + " Bytes"}
+              ? (fileDetails.size / (1024 * 1024)).toFixed(2) + " MB"
+              : fileDetails.size > 1024
+              ? (fileDetails.size / 1024).toFixed(2) + " KB"
+              : fileDetails.size + " Bytes"}
           </p>
           <p>
             <strong>Owner:</strong>{" "}
