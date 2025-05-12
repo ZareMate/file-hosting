@@ -24,9 +24,10 @@ interface FileDetails {
 export async function generateMetadata({
   searchParams,
 }: {
-  searchParams: { id?: string };
+  searchParams: Promise<{ id?: string }>;
 }): Promise<Metadata> {
-  const fileId = searchParams.id;
+  const resolvedSearchParams = await searchParams; // Resolve the promise
+  const fileId = resolvedSearchParams.id;
 
   if (!fileId) {
     return {
@@ -84,9 +85,10 @@ async function fetchFileDetails(fileId: string): Promise<FileDetails | null> {
 export default async function FilePreviewContainer({
   searchParams,
 }: {
-  searchParams: { id?: string };
+  searchParams: Promise<{ id?: string }>;
 }) {
-  const fileId = searchParams.id;
+  const resolvedSearchParams = await searchParams; // Resolve the promise
+  const fileId = resolvedSearchParams.id;
 
   if (!fileId) {
     notFound();
