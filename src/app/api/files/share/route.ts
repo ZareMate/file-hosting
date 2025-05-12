@@ -32,6 +32,7 @@ export async function GET(req: Request) {
       type: file.extension,
       url: file.url,
       description: file.description,
+      isPublic: file.public, // Ensure this is included
     });
   } catch (error) {
     console.error("Error fetching file details:", error);

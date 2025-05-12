@@ -15,17 +15,6 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-model Post {
-    id        Int      @id @default(autoincrement())
-    name      String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-
-    createdBy   User   @relation(fields: [createdById], references: [id])
-    createdById String
-
-    @@index([name])
-}
 
 // Necessary for Next auth
 model Account {
@@ -63,7 +52,6 @@ model User {
     image         String?
     accounts      Account[]
     sessions      Session[]
-    posts         Post[]
     files         File[]    // Relation to the File model
 }
 
@@ -85,4 +73,5 @@ model File {
     description String @default("")
     uploadedBy User?    @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
     uploadedById String?
+    public     Boolean  @default(false) // Indicates if the file is public or private
 }

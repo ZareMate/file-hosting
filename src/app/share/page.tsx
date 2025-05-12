@@ -19,6 +19,7 @@ interface FileDetails {
   type: string;
   url: string;
   description: string;
+  isPublic: boolean;
 }
 
 export async function generateMetadata({
@@ -95,6 +96,7 @@ export default async function FilePreviewContainer({
   }
 
   const fileDetails = await fetchFileDetails(fileId);
+  
 
   if (!fileDetails) {
     return (
@@ -161,13 +163,46 @@ export default async function FilePreviewContainer({
               fileDescription={fileDetails.description}
             />
           </div>
-          <div className="mt-4 flex justify-center">
-            <FileActionsContainer
-              fileId={fileDetails.id}
-              fileName={fileDetails.name}
-              fileUrl={fileDetails.url}
-              isOwner={fileDetails.isOwner}
-            />
+          <div className="bg-white/10 shadow-md rounded-lg p-6 w-full max-w-md text-white">
+            <p>
+              <strong>Name:</strong> {fileDetails.name}
+            </p>
+            <p>
+              <strong>Size:</strong>{" "}
+              {fileDetails.size > 1024 * 1024 * 1024
+                ? (fileDetails.size / (1024 * 1024 * 1024)).toFixed(2) + " GB"
+                : fileDetails.size > 1024 * 1024
+                ? (fileDetails.size / (1024 * 1024)).toFixed(2) + " MB"
+                : fileDetails.size > 1024
+                ? (fileDetails.size / 1024).toFixed(2) + " KB"
+                : fileDetails.size + " Bytes"}
+            </p>
+            <p>
+              <strong>Owner:</strong>{" "}
+              <img
+                className="rounded-md inline size-5"
+                src={fileDetails.ownerAvatar || ""}
+                alt="Owner avatar"
+              />{" "}
+              {fileDetails.owner}
+            </p>
+            <p>
+              <strong>Upload Date:</strong>{" "}
+              {new Date(fileDetails.uploadDate).toLocaleString()}
+            </p>
+            <div>
+              <strong>Description:</strong>{" "}
+              <FileDescriptionContainer fileId={fileDetails.id} fileDescription={fileDetails.description}/>
+            </div>
+            <div className="mt-4 flex justify-center">
+              <FileActionsContainer
+                fileId={fileDetails.id}
+                fileName={fileDetails.name}
+                fileUrl={fileDetails.url}
+                isOwner={fileDetails.isOwner}
+                isPublic={fileDetails.isPublic}
+              />
+            </div>
           </div>
         </div>
       </div>
