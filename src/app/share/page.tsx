@@ -54,17 +54,34 @@ export default async function FilePreviewContainer({
 
   if (!fileDetails) {
     return (
-      <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
-        <Toaster position="top-right" reverseOrder={false} />
-        <div className="absolute top-4 left-4">
-          <HomeButton />
-        </div>
-        <div className="container flex flex-col items-center gap-12 px-4 py-16">
-          <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
-            <span className="text-[hsl(280,100%,70%)]">No</span> File Found
-          </h1>
-        </div>
-      </main>
+      <>
+        <Head>
+          <title>No File Found</title>
+          <meta property="og:title" content="No File Found" />
+          <meta
+            property="og:description"
+            content="The file you are looking for does not exist."
+          />
+          <meta property="og:type" content="website" />
+          <meta property="og:image" content="/images/no-file.png" />
+          <meta property="og:image:alt" content="No file found" />
+          <meta
+            property="og:url"
+            content={`${process.env.NEXT_PUBLIC_PAGE_URL}/share?id=${fileId}`}
+          />
+        </Head>
+        <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
+          <Toaster position="top-right" reverseOrder={false} />
+          <div className="absolute top-4 left-4">
+            <HomeButton />
+          </div>
+          <div className="container flex flex-col items-center gap-12 px-4 py-16">
+            <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
+              <span className="text-[hsl(280,100%,70%)]">No</span> File Found
+            </h1>
+          </div>
+        </main>
+      </>
     );
   }
 
