@@ -129,7 +129,7 @@ export default async function FilePreviewContainer({
         </h1>
         <div className="mt-6">
           {fileDetails.type !== "unknown" && (
-            <FilePreview fileId={fileDetails.id} fileType={fileDetails.type} />
+            <FilePreview fileId={fileDetails.id} fileType={fileDetails.type} share={true} />
           )}
         </div>
         <div className="w-full max-w-md rounded-lg bg-white/10 p-6 text-white shadow-md">

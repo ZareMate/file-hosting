@@ -5,6 +5,7 @@ import crypto from "crypto";
 import { db } from "~/server/db";
 import { auth } from "~/server/auth";
 import { minioClient, ensureBucketExists } from "~/utils/minioClient";
+import { getFileType } from "~/utils/fileType";
 
 export const config = {
   api: {
@@ -52,7 +53,7 @@ export async function POST(req: Request) {
               url: `/share?id=${fileId}`,
               name: fileName,
               size: fileBuffer.length,
-              extension: info.mimeType,
+              extension: getFileType(fileName),
               uploadedById: session.user.id,
             },
           });

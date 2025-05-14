@@ -1,0 +1,9 @@
+.markdown-body ul,
+.markdown-body ol {
+  list-style: initial; /* Ensures bullets or numbers are displayed */
+  margin-left: 1.5em; /* Adds proper indentation */
+}
+
+.markdown-body li {
+  margin-bottom: 0.5em; /* Adds spacing between list items */
+}

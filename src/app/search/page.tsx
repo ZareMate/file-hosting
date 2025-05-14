@@ -91,7 +91,7 @@ export default function SearchFile() {
                 className="flex place-content-end w-xxs flex-col gap-4 rounded-xl bg-white/10 p-4 hover:bg-white/20"
               >
                 <div className="self-center max-w-100 sm:max-w-50">
-                  <FilePreview fileId={file.id} fileType={file.extension} />
+                  <FilePreview fileId={file.id} fileType={file.extension} share={false} />
                 </div>
 
                 <button onClick={() => router.push(pageUrl + file.url)}>
