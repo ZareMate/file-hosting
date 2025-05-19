@@ -16,23 +16,42 @@ const LoadingSkeleton: React.FC = () => (
           <span className="text-[hsl(280,100%,70%)]">File</span> Details
         </h1>
         <div className="mt-6">
-          {" Loading..."}
+          <svg
+                      className="h-6 w-6 animate-spin text-white/70"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                      />
+                    </svg>
         </div>
         <div className="w-full max-w-md rounded-lg bg-white/10 p-6 text-white shadow-md">
           <p>
-            <strong>Name:</strong>{" Loading..."}
+            <strong>Name:</strong> <span className="inline-block h-6 w-24 rounded bg-white/20 animate-pulse align-middle ml-2" />
           </p>
           <p>
-            <strong>Size:</strong>{" Loading..."}
+            <strong>Size:</strong> <span className="inline-block h-6 w-16 rounded bg-white/20 animate-pulse align-middle ml-2" />
           </p>
           <p>
-            <strong>Owner:</strong>{" Loading..."}
+            <strong>Owner:</strong> <span className="inline-block h-6 w-20 rounded bg-white/20 animate-pulse align-middle ml-2" />
           </p>
           <p>
-            <strong>Upload Date:</strong>{" Loading..."}
+            <strong>Upload Date:</strong> <span className="inline-block h-6 w-28 rounded bg-white/20 animate-pulse align-middle ml-2" />
           </p>
           <div>
-            <strong>Description:</strong>{" Loading..."}
+            <strong>Description:</strong> <span className="inline-block h-6 w-40 rounded bg-white/20 animate-pulse align-middle ml-2" />
           </div>
           <div className="mt-4 flex justify-center">
             <FileActionsContainer

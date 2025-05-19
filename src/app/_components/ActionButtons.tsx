@@ -59,7 +59,7 @@ export function FileActionsContainer({
           console.error(err);
         }
         }}
-        className="flex items-center justify-center rounded-full bg-red-500 p-2 hover:bg-red-600"
+        className="flex items-center justify-center rounded-full bg-red-500 p-2 hover:bg-red-700"
       >
         <img src="/icons/delete.svg" alt="Remove" className="h-6 w-6" />
       </button>
