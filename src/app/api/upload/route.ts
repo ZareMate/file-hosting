@@ -23,7 +23,9 @@ export async function POST(req: Request) {
   await ensureBucketExists(bucketName);
 
   return new Promise<Response>((resolve, reject) => {
-    const busboy = Busboy({ headers: { "content-type": req.headers.get("content-type") ?? "" } });
+    const busboy = Busboy({
+      headers: { "content-type": req.headers.get("content-type") ?? "" },
+    });
     let fileName = "";
     let fileBuffer = Buffer.alloc(0);
 
@@ -58,7 +60,12 @@ export async function POST(req: Request) {
             },
           });
 
-          resolve(NextResponse.json({ message: "File uploaded successfully", file: newFile }));
+          resolve(
+            NextResponse.json({
+              message: "File uploaded successfully",
+              file: newFile,
+            }),
+          );
         } catch (error) {
           console.error("Error uploading file to MinIO:", error);
           reject(new Error("Failed to upload file"));
