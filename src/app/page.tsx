@@ -4,6 +4,7 @@ import { HydrateClient } from "~/trpc/server";
 import FileGrid from "~/app/_components/FileGrid";
 import UploadForm from "~/app/_components/UploadForm";
 import { Toaster } from "react-hot-toast";
+import { Suspense } from "react";
 
 export default async function Home() {
   const session = await auth();
@@ -53,7 +54,9 @@ export default async function Home() {
           {/* Conditionally render FileGrid and UploadForm if the user is logged in */}
           {session?.user ? (
             <>
-              <FileGrid session={session} />
+              <Suspense fallback={<p className="text-center text-2xl text-white">Loading...</p>}>
+                <FileGrid session={session} />
+              </Suspense>
               <UploadForm />
             </>
           ) : (
