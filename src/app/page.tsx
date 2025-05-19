@@ -1,16 +1,50 @@
+"use client"
+
 import Link from "next/link";
-import { auth } from "~/server/auth";
-import { HydrateClient } from "~/trpc/server";
+import { useEffect, useState } from "react";
 import FileGrid from "~/app/_components/FileGrid";
 import UploadForm from "~/app/_components/UploadForm";
 import { Toaster } from "react-hot-toast";
 import { Suspense } from "react";
+import LoadingSkeleton from "./LoadingSkeleton";
 
-export default async function Home() {
-  const session = await auth();
+// Custom fallback for FileGrid
+function FileGridFallback() {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full max-w-4xl animate-pulse">
+      {[...Array(6)].map((_, i) => (
+        <div key={i} className="flex flex-col items-center">
+          <span className="mb-2 text-lg text-white/60">Loading</span>
+          <div className="h-32 rounded bg-white/10 w-full" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// Custom fallback for UploadForm
+function UploadFormFallback() {
+  return (
+    <div className="mt-8 w-full max-w-md flex flex-col gap-4 animate-pulse">
+      <div className="h-10 rounded bg-white/20" />
+      <div className="h-10 rounded bg-white/10" />
+    </div>
+  );
+}
+
+function Home() {
+  const [session, setSession] = useState<{ user?: any } | null>(null);
+  useEffect(() => {
+    async function fetchSession() {
+      const res = await fetch("/api/auth/session");
+      const data = await res.json();
+      setSession(data);
+    }
+    fetchSession();
+  }, []);
 
   return (
-    <HydrateClient>
+    <>
       <Toaster position="top-right" reverseOrder={false} />
       <main className="relative flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
         {/* Top-right corner sign-out button */}
@@ -54,10 +88,12 @@ export default async function Home() {
           {/* Conditionally render FileGrid and UploadForm if the user is logged in */}
           {session?.user ? (
             <>
-              <Suspense fallback={<p className="text-center text-2xl text-white">Loading...</p>}>
-                <FileGrid session={session} />
+              <Suspense fallback={<FileGridFallback />}>
+                <FileGrid session={session as { user: { id: string } }} />
               </Suspense>
-              <UploadForm />
+              <Suspense fallback={<UploadFormFallback />}>
+                <UploadForm />
+              </Suspense>
             </>
           ) : (
             <p className="text-center text-2xl text-white">
@@ -78,6 +114,8 @@ export default async function Home() {
           )}
         </div>
       </main>
-    </HydrateClient>
+    </>
   );
 }
+
+export default Home;

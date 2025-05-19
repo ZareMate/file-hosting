@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { FilePreview } from "~/app/_components/FilePreview";
 import { HomeButton } from "~/app/_components/HomeButton"; // Import the client component
 import { Toaster } from "react-hot-toast";
@@ -129,7 +130,9 @@ export default async function FilePreviewContainer({
         </h1>
         <div className="mt-6">
           {fileDetails.type !== "unknown" && (
-            <FilePreview fileId={fileDetails.id} fileType={fileDetails.type} share={true} />
+            <Suspense fallback={<div className="text-white">Loading...</div>}>
+              <FilePreview fileId={fileDetails.id} fileType={fileDetails.type} share={true} />
+            </Suspense>
           )}
         </div>
         <div className="w-full max-w-md rounded-lg bg-white/10 p-6 text-white shadow-md">
@@ -148,32 +151,40 @@ export default async function FilePreviewContainer({
           </p>
           <p>
             <strong>Owner:</strong>{" "}
-            <img
+            <Suspense fallback={<div className="text-white">Loading...</div>}>
+              <img
               className="inline size-5 rounded-md"
               src={fileDetails.ownerAvatar || ""}
               alt="Owner avatar"
-            />{" "}
+              />{" "}
             {fileDetails.owner}
+            </Suspense>
           </p>
           <p>
             <strong>Upload Date:</strong>{" "}
-            {new Date(fileDetails.uploadDate).toLocaleString()}
+            <Suspense fallback={<div className="text-white">Loading...</div>}>
+              {new Date(fileDetails.uploadDate).toLocaleString()}
+            </Suspense>
           </p>
           <div>
             <strong>Description:</strong>{" "}
-            <FileDescriptionContainer
-              fileId={fileDetails.id}
-              fileDescription={fileDetails.description}
-            />
+            <Suspense fallback={<div className="text-white">Loading...</div>}>
+              <FileDescriptionContainer
+                fileId={fileDetails.id}
+                fileDescription={fileDetails.description}
+              />
+            </Suspense>
           </div>
           <div className="mt-4 flex justify-center">
-            <FileActionsContainer
-              fileId={fileDetails.id}
-              fileName={fileDetails.name}
-              fileUrl={fileDetails.url}
-              isOwner={session?.user?.id ? await checkOwner(fileDetails.ownerId, session.user.id) : false}
-              isPublic={fileDetails.isPublic}
-            />
+            <Suspense fallback={<div className="text-white">Loading...</div>}>
+              <FileActionsContainer
+                fileId={fileDetails.id}
+                fileName={fileDetails.name}
+                fileUrl={fileDetails.url}
+                isOwner={session?.user?.id ? await checkOwner(fileDetails.ownerId, session.user.id) : false}
+                isPublic={fileDetails.isPublic}
+              />
+            </Suspense>
           </div>
         </div>
       </div>
