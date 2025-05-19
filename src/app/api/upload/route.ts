@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import Busboy from "busboy";
 import { Readable } from "stream";
-import crypto from "crypto";
 import { db } from "~/server/db";
 import { auth } from "~/server/auth";
 import { minioClient, ensureBucketExists } from "~/utils/minioClient";
 import { getFileType } from "~/utils/fileType";
 import cuid from 'cuid';
+import { notifyClients } from "~/utils/notifyClients";
 
 export const config = {
   api: {
@@ -63,11 +63,13 @@ export async function POST(req: Request) {
               uploadedById: session.user.id,
             },
           });
+          notifyClients({ type: "file-added", fileId: fileId });
 
           resolve(
             NextResponse.json({
               message: "File uploaded successfully",
               file: newFile,
+              fileId: fileId,
             }),
           );
         } catch (error) {

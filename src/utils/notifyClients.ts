@@ -11,6 +11,7 @@ export function notifyClients(data: unknown) {
   clients.forEach((client) => {
     try {
       client.send(message);
+      console.log("Sent message to a client:", message);
     } catch (error) {
       console.error("Failed to send message to a client:", error);
       closedClients.push(client); // Mark the client for removal

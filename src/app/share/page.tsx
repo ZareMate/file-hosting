@@ -94,6 +94,8 @@ export default async function FilePreviewContainer({
 }) {
   const resolvedSearchParams = await searchParams; // Resolve the promise
   const fileId = resolvedSearchParams.id;
+  // Wait for 10s for test purposes
+  await new Promise((resolve) => setTimeout(resolve, 10000));
 
   if (!fileId) {
     notFound();
