@@ -6,6 +6,7 @@ import { db } from "~/server/db";
 import { auth } from "~/server/auth";
 import { minioClient, ensureBucketExists } from "~/utils/minioClient";
 import { getFileType } from "~/utils/fileType";
+import cuid from 'cuid';
 
 export const config = {
   api: {
@@ -41,8 +42,11 @@ export async function POST(req: Request) {
         fileBuffer = Buffer.concat(chunks);
 
         // Generate a unique ID for the file
-        const fileId = crypto.randomUUID();
+        const fileId = session.user.id + "-" + cuid()
         const objectName = `${fileId}-${fileName}`;
+        // Change UUID to CUID
+
+
 
         try {
           // Upload the file to MinIO
