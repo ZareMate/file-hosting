@@ -1,6 +1,7 @@
+"use client"
+
 import Link from "next/link";
-import { auth } from "~/server/auth";
-import { HydrateClient } from "~/trpc/server";
+import { useEffect, useState } from "react";
 import FileGrid from "~/app/_components/FileGrid";
 import UploadForm from "~/app/_components/UploadForm";
 import { Toaster } from "react-hot-toast";
@@ -31,11 +32,19 @@ function UploadFormFallback() {
   );
 }
 
-export default async function Home() {
-  const session = await auth();
+function Home() {
+  const [session, setSession] = useState<{ user?: any } | null>(null);
+  useEffect(() => {
+    async function fetchSession() {
+      const res = await fetch("/api/auth/session");
+      const data = await res.json();
+      setSession(data);
+    }
+    fetchSession();
+  }, []);
 
   return (
-    <HydrateClient>
+    <>
       <Toaster position="top-right" reverseOrder={false} />
       <main className="relative flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
         {/* Top-right corner sign-out button */}
@@ -80,7 +89,7 @@ export default async function Home() {
           {session?.user ? (
             <>
               <Suspense fallback={<FileGridFallback />}>
-                <FileGrid session={session} />
+                <FileGrid session={session as { user: { id: string } }} />
               </Suspense>
               <Suspense fallback={<UploadFormFallback />}>
                 <UploadForm />
@@ -105,6 +114,8 @@ export default async function Home() {
           )}
         </div>
       </main>
-    </HydrateClient>
+    </>
   );
 }
+
+export default Home;
