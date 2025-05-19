@@ -5,6 +5,31 @@ import FileGrid from "~/app/_components/FileGrid";
 import UploadForm from "~/app/_components/UploadForm";
 import { Toaster } from "react-hot-toast";
 import { Suspense } from "react";
+import LoadingSkeleton from "./LoadingSkeleton";
+
+// Custom fallback for FileGrid
+function FileGridFallback() {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full max-w-4xl animate-pulse">
+      {[...Array(6)].map((_, i) => (
+        <div key={i} className="flex flex-col items-center">
+          <span className="mb-2 text-lg text-white/60">Loading</span>
+          <div className="h-32 rounded bg-white/10 w-full" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// Custom fallback for UploadForm
+function UploadFormFallback() {
+  return (
+    <div className="mt-8 w-full max-w-md flex flex-col gap-4 animate-pulse">
+      <div className="h-10 rounded bg-white/20" />
+      <div className="h-10 rounded bg-white/10" />
+    </div>
+  );
+}
 
 export default async function Home() {
   const session = await auth();
@@ -54,10 +79,12 @@ export default async function Home() {
           {/* Conditionally render FileGrid and UploadForm if the user is logged in */}
           {session?.user ? (
             <>
-              <Suspense fallback={<p className="text-center text-2xl text-white">Loading...</p>}>
+              <Suspense fallback={<FileGridFallback />}>
                 <FileGrid session={session} />
               </Suspense>
-              <UploadForm />
+              <Suspense fallback={<UploadFormFallback />}>
+                <UploadForm />
+              </Suspense>
             </>
           ) : (
             <p className="text-center text-2xl text-white">
