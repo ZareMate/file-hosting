@@ -4,10 +4,11 @@
 generator client {
     provider = "prisma-client-js"
     binaryTargets = ["native", "debian-openssl-3.0.x"]
+    output   = "/app/generated/prisma-client"
 }
 
 datasource db {
-    provider = "mysql"
+    provider = "postgresql"
     // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below
     // Further reading:
     // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
@@ -23,7 +24,7 @@ model Account {
     type                     String
     provider                 String
     providerAccountId        String
-    refresh_token            String? @db.Text
+    refresh_token            String? //@db.Text
     access_token             String? // @db.Text
     expires_at               Int?
     token_type               String?
