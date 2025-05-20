@@ -1,16 +1,53 @@
+"use client";
+
 import Link from "next/link";
-import { auth } from "~/server/auth";
-import { HydrateClient } from "~/trpc/server";
+import { useEffect, useState } from "react";
 import FileGrid from "~/app/_components/FileGrid";
 import UploadForm from "~/app/_components/UploadForm";
 import { Toaster } from "react-hot-toast";
 import { Suspense } from "react";
+import LoadingSkeleton from "./LoadingSkeleton";
 
-export default async function Home() {
-  const session = await auth();
+// Custom fallback for FileGrid
+function FileGridFallback() {
+  return (
+    <div className="grid w-full max-w-4xl animate-pulse grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
+      {[...Array(6)].map((_, i) => (
+        <div key={i} className="flex flex-col items-center">
+          <span className="mb-2 text-lg text-white/60">Loading</span>
+          <div className="h-32 w-full rounded bg-white/10" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// Custom fallback for UploadForm
+function UploadFormFallback() {
+  return (
+    <div className="mt-8 flex w-full max-w-md animate-pulse flex-col gap-4">
+      <div className="h-10 rounded bg-white/20" />
+      <div className="h-10 rounded bg-white/10" />
+    </div>
+  );
+}
+
+function Home() {
+  const [session, setSession] = useState<{ user?: any } | null>(null);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    async function fetchSession() {
+      setLoading(true);
+      const res = await fetch("/api/auth/session");
+      const data = await res.json();
+      setSession(data);
+      setLoading(false);
+    }
+    fetchSession();
+  }, []);
 
   return (
-    <HydrateClient>
+    <>
       <Toaster position="top-right" reverseOrder={false} />
       <main className="relative flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
         {/* Top-right corner sign-out button */}
@@ -54,30 +91,59 @@ export default async function Home() {
           {/* Conditionally render FileGrid and UploadForm if the user is logged in */}
           {session?.user ? (
             <>
-              <Suspense fallback={<p className="text-center text-2xl text-white">Loading...</p>}>
-                <FileGrid session={session} />
+              <Suspense fallback={<FileGridFallback />}>
+                <FileGrid session={session as { user: { id: string } }} />
               </Suspense>
-              <UploadForm />
+              <Suspense fallback={<UploadFormFallback />}>
+                <UploadForm />
+              </Suspense>
             </>
-          ) : (
+          ) : !loading ? (
             <p className="text-center text-2xl text-white">
               Please log in to upload and view files.
             </p>
-          )}
+          ) : null}
           {!session?.user && (
             <div className="flex flex-col items-center gap-2">
               <div className="flex flex-col items-center justify-center gap-4">
-                <Link
-                  href={session ? "/api/auth/signout" : "/api/auth/signin"}
-                  className="rounded-full bg-white/10 px-10 py-3 font-semibold no-underline transition hover:bg-white/20"
-                >
-                  {session ? "Sign out" : "Sign in"}
-                </Link>
+                {!loading ? (
+                  <Link
+                    href={session ? "/api/auth/signout" : "/api/auth/signin"}
+                    className="rounded-full bg-white/10 px-10 py-3 font-semibold no-underline transition hover:bg-white/20"
+                  >
+                    {session ? "Sign out" : "Sign in"}
+                  </Link>
+                ) : (
+                  <div className="flex h-10 items-center justify-center">
+                    <svg
+                      className="h-6 w-6 animate-spin text-white/70"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                      />
+                    </svg>
+                  </div>
+                )}
               </div>
             </div>
           )}
         </div>
       </main>
-    </HydrateClient>
+    </>
   );
 }
+
+export default Home;
