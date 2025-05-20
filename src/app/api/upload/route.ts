@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import Busboy from "busboy";
 import { Readable } from "stream";
-import crypto from "crypto";
 import { db } from "~/server/db";
 import { auth } from "~/server/auth";
 import { minioClient, ensureBucketExists } from "~/utils/minioClient";
 import { getFileType } from "~/utils/fileType";
+import cuid from 'cuid';
+import { notifyClients } from "~/utils/notifyClients";
 
 export const config = {
   api: {
@@ -23,7 +24,9 @@ export async function POST(req: Request) {
   await ensureBucketExists(bucketName);
 
   return new Promise<Response>((resolve, reject) => {
-    const busboy = Busboy({ headers: { "content-type": req.headers.get("content-type") ?? "" } });
+    const busboy = Busboy({
+      headers: { "content-type": req.headers.get("content-type") ?? "" },
+    });
     let fileName = "";
     let fileBuffer = Buffer.alloc(0);
 
@@ -39,8 +42,11 @@ export async function POST(req: Request) {
         fileBuffer = Buffer.concat(chunks);
 
         // Generate a unique ID for the file
-        const fileId = crypto.randomUUID();
+        const fileId = session.user.id + "-" + cuid()
         const objectName = `${fileId}-${fileName}`;
+        // Change UUID to CUID
+
+
 
         try {
           // Upload the file to MinIO
@@ -57,8 +63,15 @@ export async function POST(req: Request) {
               uploadedById: session.user.id,
             },
           });
+          notifyClients({ type: "file-added", fileId: fileId });
 
-          resolve(NextResponse.json({ message: "File uploaded successfully", file: newFile }));
+          resolve(
+            NextResponse.json({
+              message: "File uploaded successfully",
+              file: newFile,
+              fileId: fileId,
+            }),
+          );
         } catch (error) {
           console.error("Error uploading file to MinIO:", error);
           reject(new Error("Failed to upload file"));

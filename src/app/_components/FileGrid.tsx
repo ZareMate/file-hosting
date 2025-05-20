@@ -1,13 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { env } from "~/env.js";
 import { FilePreview } from "~/app/_components/FilePreview";
 import { useFileActions } from "~/app/_components/FileActions";
 import { FileActionsContainer } from "./ActionButtons";
-import { checkOwner } from "~/utils/checkOwner"; // Import the client component
 
 interface FileDetails {
   id: string;
@@ -73,13 +71,15 @@ export default function FileGrid({ session }: FileGridProps) {
 
     const eventSource = new EventSource("/api/files/stream");
     eventSource.onmessage = (event) => {
-      const data: { type: string; file?: FileDetails; fileId?: string } = JSON.parse(event.data);
-
-      if (data.type === "file-added" && data.file) {
-        setFiles((prevFiles) => (data.file ? [...prevFiles, data.file] : prevFiles));
-        toast.success(`File "${data.file.name}" added!`);
+      const data: { type: string; fileId?: string } = JSON.parse(event.data);
+      console.log("SSE event:", data);
+      if (data.type === "file-added" && data.fileId) {
+        fetchFiles();
+      } else if (data.type === "file-updated" && data.fileId) {
+        // Fetch the updated file details
+        fetchFiles();
       } else if (data.type === "file-removed" && data.fileId) {
-        setFiles((prevFiles) => prevFiles.filter((file) => file.id !== data.fileId));
+        setFiles((prevFiles => prevFiles.filter(file => file.id !== data.fileId)));
       }
     };
 
