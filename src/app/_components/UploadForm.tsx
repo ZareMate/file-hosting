@@ -10,6 +10,7 @@ export default function UploadForm() {
   const [uploadedFileUrl, setUploadedFileUrl] = useState<string | null>(null);
   const [progress, setProgress] = useState<number>(0); // Track upload progress
   const fileInputRef = useRef<HTMLInputElement | null>(null); // Ref for the file input
+  const [isDragActive, setIsDragActive] = useState(false); // Track drag state
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -17,6 +18,34 @@ export default function UploadForm() {
       setUploadedFileUrl(null); // Reset the uploaded file URL when a new file is selected
       setProgress(0); // Reset progress
       setUploading(false); // Reset uploading state
+    }
+  };
+
+  // Drag and drop handlers
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragActive(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragActive(false);
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragActive(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      setFile(e.dataTransfer.files[0] ?? null);
+      setUploadedFileUrl(null);
+      setProgress(0);
+      setUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     }
   };
 
@@ -41,15 +70,14 @@ export default function UploadForm() {
 
       xhr.onload = () => {
         if (xhr.status === 200) {
-          const response: { url: string } = JSON.parse(xhr.responseText); // Explicitly type the response
-          setUploadedFileUrl(response.url); // Assume the API returns the uploaded file URL
-          notifyClients({type: "file-uploaded", fileUrl: response.url}); // Notify other clients about the new file
+          const response = JSON.parse(xhr.responseText);
+          setUploadedFileUrl(response.file?.url || null); // Use the new response structure
           toast.success("File uploaded successfully!");
 
           // Clear the file input and reset state
           setFile(null);
           if (fileInputRef.current) {
-            fileInputRef.current.value = ""; // Clear the file input
+            fileInputRef.current.value = "";
           }
         } else {
           console.error("Upload failed:", xhr.responseText);
@@ -86,42 +114,48 @@ export default function UploadForm() {
       {/* Toast container */}
       <Toaster position="top-right" reverseOrder={false} />
 
-      <div className="flex flex-row items-center gap-4">
-        {/* Custom file input */}
-        <label
-          htmlFor="file-upload"
-          className="cursor-pointer flex items-center gap-2 rounded-full bg-white/10 px-10 py-3 font-semibold no-underline transition hover:bg-white/20"
-        >
-          {file ? (
-            <>
-              File Selected
-              {/* SVG Icon */}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={2}
-                stroke="currentColor"
-                className="h-5 w-5 text-green-500"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-            </>
-          ) : (
-            "Select File"
-          )}
-        </label>
+      {/* Drag and Drop Area */}
+      <div
+        className={`w-full max-w-md flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-6 mb-2 transition-colors duration-200 ${isDragActive ? "border-blue-500 bg-blue-100/30" : "border-gray-400 bg-transparent hover:bg-gray-50/10"}`}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        onClick={() => fileInputRef.current?.click()}
+        style={{ cursor: "pointer" }}
+      >
+        {/* Hidden file input for click-to-select */}
         <input
-          id="file-upload"
-          ref={fileInputRef} // Attach the ref to the file input
           type="file"
+          ref={fileInputRef}
+          style={{ display: "none" }}
           onChange={handleFileChange}
-          className="hidden" // Hide the default file input
         />
+        <span className="text-gray-300">
+          {isDragActive ? "Drop your file here" : "Drag & drop a file here, or click to select"}
+        </span>
+        {file && (
+          <div className="mt-2 flex items-center gap-2">
+        <span className="text-green-500 font-semibold">{file.name}</span>
+        {/* Add button to remove file */}
+        <button
+          onClick={e => {
+            e.stopPropagation();
+            setFile(null);
+            if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+            }
+          }}
+          className="flex items-center justify-center rounded-full bg-red-500 p-2 hover:bg-red-700"
+          style={{ cursor: "pointer" }}
+        >
+          <img src="/icons/delete.svg" alt="Remove" className="h-6 w-6" />
+        </button>
+          </div>
+        )}
+      </div>
+      {/* Show upload button only when file is selected */}
+      {file && (
+      <div className="flex flex-row items-center gap-4">
         <button
           onClick={handleUpload}
           disabled={uploading || !file}
@@ -129,7 +163,7 @@ export default function UploadForm() {
         >
           {uploading ? "Uploading..." : "Upload"}
         </button>
-      </div>
+      </div>)}
 
       {file && uploading && (
         <div className="w-full max-w-md flex items-center gap-2">
@@ -142,31 +176,17 @@ export default function UploadForm() {
         </div>
       )}
 
-      {uploadedFileUrl && (
+      {/* {uploadedFileUrl && file && (
         <div className="flex flex-row items-center gap-4">
-          <p className="text-white">{uploadedFileUrl}</p>
+          <p className="text-white">{file.name}</p>
           <button
             onClick={handleCopyUrl}
             className="flex items-center justify-center rounded-full bg-blue-500 p-2 hover:bg-blue-600"
           >
-            {/* Copy Icon */}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-              className="h-5 w-5 text-white"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M8 16h8M8 12h8m-7 8h6a2 2 0 002-2V6a2 2 0 00-2-2H9a2 2 0 00-2 2v12a2 2 0 002 2z"
-              />
-            </svg>
+            <img src="/icons/copy.svg" alt="Copy URL" className="h-6 w-6" />
           </button>
         </div>
-      )}
+      )} */}
     </div>
   );
 }
