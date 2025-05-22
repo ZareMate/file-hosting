@@ -4,7 +4,7 @@ import { env } from "~/env";
 export const minioClient = new Client({
   endPoint: env.MINIO_ENDPOINT,
   port: parseInt(env.MINIO_PORT, 10),
-  useSSL: false, // Set to true if using HTTPS
+  useSSL: true, // Set to true if using HTTPS
   accessKey: env.MINIO_ACCESS_KEY,
   secretKey: env.MINIO_SECRET_KEY,
 });
