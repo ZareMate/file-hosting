@@ -52,56 +52,8 @@ export default function UploadForm() {
   const handleUpload = async () => {
     if (!file) return toast.error("Please select a file to upload.");
     setUploading(true);
-    setProgress(0);
 
     try {
-      // --- New: Direct-to-MinIO upload using pre-signed URL ---
-      // 1. Get pre-signed URL
-      const presignRes = await fetch("/api/presign", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fileName: file.name, fileType: file.type }),
-      });
-      if (!presignRes.ok) throw new Error("Failed to get upload URL");
-      const { url, objectName, fileId } = await presignRes.json();
-
-      // 2. Upload file directly to MinIO
-      const xhr = new XMLHttpRequest();
-      xhr.open("PUT", url, true);
-      xhr.setRequestHeader("Content-Type", file.type);
-
-      xhr.upload.onprogress = (event) => {
-        if (event.lengthComputable && event.total > 0) {
-          const percentComplete = Math.round((event.loaded / event.total) * 100);
-          setProgress(percentComplete);
-        }
-      };
-
-      xhr.onload = async () => {
-        if (xhr.status === 200 || xhr.status === 204) {
-          // Optionally, notify backend to save metadata
-          // await fetch("/api/notify-upload", { ... })
-          setUploadedFileUrl(`/share?id=${fileId}`);
-          toast.success("File uploaded successfully!");
-          setFile(null);
-          if (fileInputRef.current) fileInputRef.current.value = "";
-        } else {
-          console.error("Upload failed:", xhr.responseText);
-          toast.error("Failed to upload file.");
-        }
-        setUploading(false);
-      };
-
-      xhr.onerror = () => {
-        console.error("Upload failed");
-        toast.error("Failed to upload file.");
-        setUploading(false);
-      };
-
-      xhr.send(file);
-
-      // --- Old code: Vercel API route upload (commented out) ---
-      /*
       const formData = new FormData();
       formData.append("file", file);
 
@@ -141,7 +93,6 @@ export default function UploadForm() {
       };
 
       xhr.send(formData);
-      */
     } catch (error) {
       console.error(error);
       toast.error("Failed to upload file.");
@@ -238,31 +189,4 @@ export default function UploadForm() {
       )} */}
     </div>
   );
-}
-
-// Example function for your UploadForm.tsx
-async function uploadFileDirect(file: File) {
-  // 1. Get pre-signed URL
-  const presignRes = await fetch("/api/presign", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ fileName: file.name, fileType: file.type }),
-  });
-  if (!presignRes.ok) throw new Error("Failed to get upload URL");
-  const { url, objectName, fileId } = await presignRes.json();
-
-  // 2. Upload file directly to MinIO
-  const uploadRes = await fetch(url, {
-    method: "PUT",
-    body: file,
-    headers: {
-      "Content-Type": file.type,
-    },
-  });
-  if (!uploadRes.ok) throw new Error("Upload failed");
-
-  // 3. Optionally, notify your backend to save metadata
-  // await fetch("/api/notify-upload", { ... })
-
-  return { objectName, fileId };
 }
