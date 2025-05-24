@@ -110,7 +110,7 @@ export default function FileGrid({ session }: FileGridProps) {
             <button onClick={() => router.push(pageUrl + file.url)}>
               <h3 className="text-2xl font-bold">{file.name}</h3>
             </button>
-            {file.description && (<p className="text-sm text-gray-400">Description: {file.description}</p>)}
+            {file.description && (<p style={{ whiteSpace: "pre-line" }} className="text-sm text-gray-400">Description: <br />{file.description}</p>)}
             
 
             <div className="flex self-center gap-2">

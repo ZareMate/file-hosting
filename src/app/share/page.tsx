@@ -169,10 +169,14 @@ export default async function FilePreviewContainer({
           <div>
             <strong>Description:</strong>{" "}
             <Suspense fallback={<div className="text-white">Loading...</div>}>
-              <FileDescriptionContainer
-                fileId={fileDetails.id}
-                fileDescription={fileDetails.description}
-              />
+              {session?.user?.id === fileDetails.ownerId ? (
+                <FileDescriptionContainer
+                  fileId={fileDetails.id}
+                  fileDescription={fileDetails.description}
+                />
+              ) : (
+                <span><div style={{ whiteSpace: "pre-line" }}>{fileDetails.description || "No description provided."}</div></span>
+              )}
             </Suspense>
           </div>
           <div className="mt-4 flex justify-center">

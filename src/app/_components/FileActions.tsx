@@ -12,6 +12,7 @@ export const useFileActions = (
   // Handle file download
   const handleDownload = async (fileId: string, fileName: string) => {
     try {
+      toast.loading(`Downloading file "${fileName}"...`, { id: "download" });
       const response = await fetch(
         `/api/files/download?fileId=${encodeURIComponent(fileId)}&fileName=${encodeURIComponent(fileName)}`
       );
@@ -26,10 +27,11 @@ export const useFileActions = (
       a.click();
       a.remove();
       window.URL.revokeObjectURL(url);
-
+      toast.dismiss("download");
       toast.success(`File "${fileName}" downloaded successfully!`);
     } catch (err) {
       console.error(err);
+      toast.dismiss("download");
       toast.error("Failed to download file.");
     }
   };
