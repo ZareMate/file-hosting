@@ -15,6 +15,7 @@ interface FilePreviewProps {
 
 export function FilePreview({ fileId, fileType, share }: FilePreviewProps & { share: boolean }) {
   const [mediaSrc, setMediaSrc] = useState<string | null>(null);
+  const [fetchSrc, setFetchSrc] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [markdownContent, setMarkdownContent] = useState<string | null>(null);
 
@@ -25,6 +26,7 @@ export function FilePreview({ fileId, fileType, share }: FilePreviewProps & { sh
       setError("File ID is required.");
       return;
     }
+    setFetchSrc(false)
 
     let objectUrl: string | null = null;
 
@@ -44,14 +46,24 @@ export function FilePreview({ fileId, fileType, share }: FilePreviewProps & { sh
       }
     };
 
-    fetchMedia();
+
+    // If the file type is a video, audio, image, code or markdown, fetch the media
+    if (fileType.startsWith("video") || fileType.startsWith("audio") || fileType.startsWith("image") || fileType.startsWith("code") || fileType.startsWith("markdown")) {
+      setFetchSrc(true);
+      fetchMedia();
+      console.log("Fetching media for fileId:", fileId);
+    } else {
+      console.log("No media fetch needed for fileId:", fileId);
+      setFetchSrc(false);
+      return;
+    }
 
     return () => {
       if (objectUrl) {
         URL.revokeObjectURL(objectUrl);
       }
     };
-  }, [fileId]);
+  }, [fileId, fileType]);
 
   useEffect(() => {
     if (fileType.startsWith("markdown")) {
@@ -73,7 +85,7 @@ export function FilePreview({ fileId, fileType, share }: FilePreviewProps & { sh
     return <div className="text-red-500">{error}</div>;
   }
 
-  if (!mediaSrc && !markdownContent) {
+  if (!mediaSrc && !markdownContent && fetchSrc) {
     return <div>Loading...</div>;
   }
 
