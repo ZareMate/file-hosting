@@ -18,6 +18,8 @@ const nextConfig = {
     "http://10.0.0.1:3000",
     "http://files.suchodupin.com:3000",
     "https://files.suchodupin.com:3000",
+    "http://10.0.1.1",
+    "http://10.0.1.1:3000",
   ],
   images: {
     remotePatterns: [
