@@ -6,7 +6,6 @@ import FileGrid from "~/app/_components/FileGrid";
 import UploadForm from "~/app/_components/UploadForm";
 import { Toaster } from "react-hot-toast";
 import { Suspense } from "react";
-import LoadingSkeleton from "./LoadingSkeleton";
 
 // Custom fallback for FileGrid
 function FileGridFallback() {
