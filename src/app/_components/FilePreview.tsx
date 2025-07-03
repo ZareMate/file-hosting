@@ -111,7 +111,7 @@ export function FilePreview({ fileId, fileType, share }: FilePreviewProps & { sh
       <video
         controls
         className="max-w-full max-h-96 rounded-lg shadow-md"
-        src={mediaSrc || ""}
+        src={mediaSrc || "/icons/files/file.svg"}
       >
         Your browser does not support the video tag.
       </video>
@@ -122,14 +122,14 @@ export function FilePreview({ fileId, fileType, share }: FilePreviewProps & { sh
       <audio
         controls
         className="max-w-full max-h-96 rounded-lg shadow-md"
-        src={mediaSrc || ""}
+        src={mediaSrc || "/icons/files/file.svg"}
       >
         Your browser does not support the audio tag.
       </audio>
     );
   }
   if (fileType.startsWith("image")) {
-    return <img src={mediaSrc || ""} alt="Media preview" className="max-w-full max-h-96 rounded-lg shadow-md" />;
+    return <img src={mediaSrc || "/icons/files/file.svg"} alt="Media preview" className="max-w-full max-h-96 rounded-lg shadow-md" />;
   }
 
   if (fileType.startsWith("text")) {

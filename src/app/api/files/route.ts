@@ -6,12 +6,23 @@ export async function GET() {
   const session = await auth();
 
   if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    // If the user is not authenticated, return all public files
+    try {
+      const publicFiles = await db.file.findMany({
+        where: { public: true },
+        orderBy: { uploadDate: "desc" }, // Replace 'uploadDate' with the correct field name from your schema
+      });
+      return NextResponse.json({ files: publicFiles });
+    } catch (error) {
+      console.error("Error fetching public files:", error);
+      return NextResponse.json({ error: "Failed to fetch public files" }, { status: 500 });
+    }
   }
 
   try {
     const files = await db.file.findMany({
-      where: { uploadedById: session.user.id },
+      where: { uploadedById: session.user.id
+      },
       orderBy: { uploadDate: "desc" }, // Replace 'uploadDate' with the correct field name from your schema
     });
 

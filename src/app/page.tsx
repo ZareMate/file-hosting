@@ -6,6 +6,7 @@ import FileGrid from "~/app/_components/FileGrid";
 import UploadForm from "~/app/_components/UploadForm";
 import { Toaster } from "react-hot-toast";
 import { Suspense } from "react";
+import FilePlaceholder from "./_components/FilePlaceholder";
 
 // Custom fallback for FileGrid
 function FileGridFallback() {
@@ -90,7 +91,7 @@ function Home() {
           {/* Conditionally render FileGrid and UploadForm if the user is logged in */}
           {session?.user ? (
             <>
-              <Suspense fallback={<FileGridFallback />}>
+              <Suspense fallback={<FilePlaceholder />}>
                 <FileGrid session={session as { user: { id: string } }} />
               </Suspense>
               <Suspense fallback={<UploadFormFallback />}>
