@@ -18,7 +18,6 @@ interface FileDetails {
   ownerAvatar: string | null;
   uploadDate: string;
   id: string;
-  isOwner: boolean;
   type: string;
   url: string;
   description: string;
@@ -30,6 +29,18 @@ export default function FilePreviewContainer() {
   const fileId = searchParams.get("id");
   const [fileDetails, setFileDetails] = useState<FileDetails | null>(null);
   const [loading, setLoading] = useState(true);
+  const [session, setSession] = useState<{ user?: { id: string } } | null>(null);
+
+  useEffect(() => {
+    async function fetchSession() {
+      setLoading(true);
+      const res = await fetch("/api/auth/session");
+      const data = await res.json();
+      setSession(data);
+      setLoading(false);
+    }
+    fetchSession();
+  }, []);
 
   useEffect(() => {
     if (!fileId) return;
@@ -123,18 +134,35 @@ export default function FilePreviewContainer() {
           </p>
           <div>
             <strong>Description:</strong>{" "}
-            <span style={{ whiteSpace: "pre-line" }}>
+            {session?.user && fileDetails.ownerId == session.user.id ? (
+              // Allow editing description if the user is the owner
+              <FileDescriptionContainer
+                fileId={fileDetails.id}
+                fileDescription={fileDetails.description}
+              />
+            ) : (
+              <span style={{ whiteSpace: "pre-line" }}>
               {fileDetails.description || "No description provided."}
-            </span>
+            </span>)}
           </div>
           <div className="mt-4 flex justify-center">
-            <FileActionsContainer
-              fileId={fileDetails.id}
-              fileName={fileDetails.name}
-              fileUrl={fileDetails.url}
-              isOwner={fileDetails.isOwner}
-              isPublic={fileDetails.isPublic}
-            />
+            {session?.user ? (
+              <FileActionsContainer
+                fileId={fileDetails.id}
+                fileName={fileDetails.name}
+                fileUrl={fileDetails.url}
+                isOwner={fileDetails.ownerId == session?.user.id}
+                isPublic={fileDetails.isPublic}
+              />
+            ) : (
+              <FileActionsContainer
+                fileId={fileDetails.id}
+                fileName={fileDetails.name}
+                fileUrl={fileDetails.url}
+                isOwner={false}
+                isPublic={fileDetails.isPublic}
+              />
+            )}
           </div>
         </div>
       </div>

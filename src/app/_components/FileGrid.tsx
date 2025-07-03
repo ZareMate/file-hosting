@@ -13,7 +13,7 @@ interface FileDetails {
   url: string;
   description: string;
   extension: string;
-  isOwner: boolean; // Indicates if the user owns the file
+  uploadedById: string; // The user ID of the file owner
   public: boolean; // Indicates if the file is public
 }
 
@@ -118,7 +118,7 @@ export default function FileGrid({ session }: FileGridProps) {
                 fileId={file.id}
                 fileName={file.name}
                 fileUrl={file.url}
-                isOwner={true}
+                isOwner={file.uploadedById == session?.user.id}
                 isPublic={file.public}
               />
             </div>
