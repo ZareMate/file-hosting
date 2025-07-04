@@ -29,14 +29,18 @@ const nextConfig: import("next").NextConfig = {
       },
     ],
   },
-  // async rewrites() {
-  //   return [
-  //     {
-  //       source: '/sitemap.xml',
-  //       destination: '/api/sitemap.xml',
-  //     },
-  //   ];
-  // },
+  async rewrites() {
+    return [
+      {
+        source: '/login',
+        destination: '/auth/login',
+      },
+      {
+        source: '/logout',
+        destination: '/auth/logout',
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;
